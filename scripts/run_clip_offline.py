@@ -28,16 +28,13 @@ import os
 import sys
 from dataclasses import dataclass, field
 from typing import Optional
-from pathlib import Path
 
 import torch
 from datasets import load_from_disk, DatasetDict
-from PIL import Image
 from peft import LoraConfig, get_peft_model
 from torchvision.io import ImageReadMode, read_image
 from torchvision.transforms import CenterCrop, ConvertImageDtype, Normalize, Resize
 from torchvision.transforms.functional import InterpolationMode
-import random
 
 import transformers
 from transformers import (
@@ -120,9 +117,11 @@ class ModelArguments:
             )
         },
     )
-    lora: bool = field(
-        default=True,
-        metadata={"help": "Whether to use Lora or not."},
+    lora: Optional[list[str]] = field(
+        default=None,
+        metadata={
+            "help": "List of target modules to apply LoRA. Set to empty or None to disable LoRA."
+        },
     )
     freeze_vision_model: bool = field(
         default=False,
@@ -340,33 +339,26 @@ def main():
             model_args.tokenizer_name,
             cache_dir=model_args.cache_dir,
             use_fast=model_args.use_fast_tokenizer,
-        )
-    elif model_args.model_name_or_path:
-        tokenizer = AutoTokenizer.from_pretrained(
-            model_args.model_name_or_path,
-            cache_dir=model_args.cache_dir,
-            use_fast=model_args.use_fast_tokenizer,
-            trust_remote_code=model_args.trust_remote_code,
+            local_files_only=True,
         )
     else:
         raise ValueError(
-            "You are instantiating a new tokenizer from scratch. This is not supported by this script. "
-            "You can do it from another script, save it, and load it from here, using --tokenizer_name."
+            "You are using an offline script. Please specify the directory where the tokenizer is stored."
         )
     # Load image_processor, in this script we only use this to get the mean and std for normalization.
-    image_processor = AutoImageProcessor.from_pretrained(
-        model_args.image_processor_name or model_args.model_name_or_path,
-        cache_dir=model_args.cache_dir,
-        revision=model_args.model_revision,
-        token=model_args.token,
-        trust_remote_code=model_args.trust_remote_code,
-    )
+    if model_args.image_processor_name:
+        image_processor = AutoImageProcessor.from_pretrained(
+            model_args.image_processor_name or model_args.model_name_or_path,
+            cache_dir=model_args.cache_dir,
+            local_files_only=True,
+        )
 
     model = CLIPModel.from_pretrained(
         model_args.model_name_or_path,
         cache_dir=model_args.cache_dir,
         revision=model_args.model_revision,
         token=model_args.token,
+        local_files_only=True,
     )
 
     config = model.config
@@ -382,9 +374,7 @@ def main():
         _freeze_params(model.text_model)
 
     if model_args.lora:
-        peft_config = LoraConfig(
-            target_modules=["out_proj", "q_proj", "v_proj", "k_proj"]
-        )
+        peft_config = LoraConfig(target_modules=model_args.lora)
         model = get_peft_model(model, peft_config)
         print("Using LoRA Training")
         model.print_trainable_parameters()

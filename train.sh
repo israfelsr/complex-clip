@@ -23,7 +23,7 @@ export OUTPUT_DIR=${SLURM_JOB_ID}'-cclip'
 mkdir $FAST/complex-clip/logs/$OUTPUT_DIR
 
 python scripts/run_clip_offline.py \
-    --num_train_epochs=10 \
+    --max_steps=200 \
     --gradient_accumulation_steps=1 \
     --per_device_train_batch_size=128 \
     --per_device_eval_batch_size=128 \
@@ -31,15 +31,15 @@ python scripts/run_clip_offline.py \
     --learning_rate=5e-6 \
     --full_determinism=True \
     --logging_strategy "steps" \
-    --logging_steps=0.05 \
+    --logging_steps=1 \
     --evaluation_strategy "steps" \
-    --eval_steps 0.05 \
+    --eval_steps 50 \
     --save_strategy "steps" \
-    --save_steps 0.05 \
+    --save_steps 50 \
     --lr_scheduler_type=cosine \
     --ddp_find_unused_parameters=False \
     --weight_decay 0 \
-    --save_total_limit 2 \
+    --save_total_limit 10 \
     --load_best_model_at_end True \
     --metric_for_best_model "eval_loss" \
     --model_name_or_path $WORK/data/HF/clip-base \
@@ -51,3 +51,4 @@ python scripts/run_clip_offline.py \
     --do_eval \
     --remove_unused_columns False \
     --warmup_steps 10
+#--num_train_epochs=10 \

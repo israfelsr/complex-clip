@@ -22,7 +22,7 @@ export PHF_HUB_OFFLINE=1
 export OUTPUT_DIR=${SLURM_JOB_ID}'-cclip'
 mkdir $FAST/complex-clip/logs/$OUTPUT_DIR
 
-python scripts/run_clip.py \
+python scripts/run_clip_offline.py \
     --num_train_epochs=10 \
     --gradient_accumulation_steps=1 \
     --per_device_train_batch_size=128 \

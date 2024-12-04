@@ -50,7 +50,7 @@ from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import send_example_telemetry
 
 os.environ["WANDB_ENTITY"] = "clipblip"
-os.environ["WANDB_PROJECT"] = "clipdetails"  # adding new project
+os.environ["WANDB_PROJECT"] = "complex-clip"  # adding new project
 logger = logging.getLogger(__name__)
 
 
@@ -301,10 +301,8 @@ def main():
             logger.info(
                 f"Logs will be saved in passed directory {training_args.output_dir}"
             )
-            training_args.run_name = "{}:{}:{}_{}".format(
-                model_args.lambda_contrast,
-                model_args.lambda_details,
-                model_args.lambda_neg,
+            training_args.run_name = "{}_{}".format(
+                data_args.dataset_name,
                 training_args.learning_rate,
             )
 
@@ -319,7 +317,6 @@ def main():
     if data_args.dataset_name is not None:
         # Downloading and loading a dataset from the hub.
         dataset = load_from_disk(data_args.dataset_name)
-        dataset = dataset.filter(lambda example: len(example["captions"]) > 1)
     else:
         raise ValueError("No dataset provided")
 
@@ -413,7 +410,23 @@ def main():
             for image_file in examples[image_column]
         ]
         examples["pixel_values"] = [image_transformations(image) for image in images]
+
         return examples
+
+    def collate_fn(examples):
+        pixel_values = torch.stack([example["pixel_values"] for example in examples])
+        input_ids = torch.tensor(
+            [example["input_ids"] for example in examples], dtype=torch.long
+        )
+        attention_mask = torch.tensor(
+            [example["attention_mask"] for example in examples], dtype=torch.long
+        )
+        return {
+            "pixel_values": pixel_values,
+            "input_ids": input_ids,
+            "attention_mask": attention_mask,
+            "return_loss": True,
+        }
 
     if training_args.do_train:
         if "train" not in dataset:
@@ -439,9 +452,6 @@ def main():
         if "valid" not in dataset:
             raise ValueError("--do_eval requires a train validation")
         eval_dataset = dataset["valid"]
-        max_split = max(
-            eval_dataset.map(lambda sample: {"s": len(sample["captions"])})["s"]
-        )
 
         if data_args.max_eval_samples is not None:
             max_eval_samples = min(len(eval_dataset), data_args.max_eval_samples)
@@ -463,6 +473,7 @@ def main():
         args=training_args,
         train_dataset=train_dataset if training_args.do_train else None,
         eval_dataset=eval_dataset if training_args.do_eval else None,
+        data_collator=collate_fn,
     )
 
     # 9. Training

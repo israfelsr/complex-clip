@@ -9,7 +9,7 @@
 #SBATCH --mem=40G
 #SBATCH --time=10:00:00
 #SBATCH --gres=gpu:4
-#SBATCH --output=./slurm/clipdet_%j.log      # Output and error log file
+#SBATCH --output=./slurm/cclip_%j.log      # Output and error log file
 #export CUDA_VISIBLE_DEVICES=0
 
 # Set environment variables
@@ -22,7 +22,8 @@ export PHF_HUB_OFFLINE=1
 export OUTPUT_DIR=${SLURM_JOB_ID}'-cclip'
 mkdir $FAST/complex-clip/logs/$OUTPUT_DIR
 
-python scripts/run_clip_offline.py \
+#python scripts/run_clip_offline.py \
+torchrun --nproc_per_node=4 scripts/run_clip_offline.py \
     --max_steps=200 \
     --gradient_accumulation_steps=1 \
     --per_device_train_batch_size=128 \
@@ -45,7 +46,7 @@ python scripts/run_clip_offline.py \
     --model_name_or_path $WORK/data/HF/clip-base \
     --tokenizer_name $WORK/data/HF/clip_tokenizer.hf\
     --image_processor_name $WORK/data/HF/clip_processor.hf \
-    --output_dir $FAST/clipfinecap/logs/$OUTPUT_DIR \
+    --output_dir $FAST/complex-clip/logs/$OUTPUT_DIR \
     --dataset_name $FAST/clipfinecap/data/sdci_base.hf \
     --do_train \
     --do_eval \

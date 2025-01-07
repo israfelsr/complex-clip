@@ -20,14 +20,14 @@ export HF_DATASETS_OFFLINE=1
 export PHF_HUB_OFFLINE=1
 
 export OUTPUT_DIR=${SLURM_JOB_ID}'-cclip'
-mkdir $FAST/complex-clip/logs/$OUTPUT_DIR
+mkdir $WORK/projects/complex-clip/logs/$OUTPUT_DIR
 
 #python scripts/run_clip_offline.py \
 torchrun --nproc_per_node=4 scripts/run_clip_offline.py \
-    --max_steps=200 \
+    --max_steps=300 \
     --gradient_accumulation_steps=1 \
-    --per_device_train_batch_size=128 \
-    --per_device_eval_batch_size=128 \
+    --per_device_train_batch_size=256 \
+    --per_device_eval_batch_size=256 \
     --eval_accumulation_steps=1 \
     --learning_rate=5e-6 \
     --full_determinism=True \
@@ -46,8 +46,8 @@ torchrun --nproc_per_node=4 scripts/run_clip_offline.py \
     --model_name_or_path $WORK/data/HF/clip-base \
     --tokenizer_name $WORK/data/HF/clip_tokenizer.hf\
     --image_processor_name $WORK/data/HF/clip_processor.hf \
-    --output_dir $FAST/complex-clip/logs/$OUTPUT_DIR \
-    --dataset_name $FAST/clipfinecap/data/sdci_base.hf \
+    --output_dir $WORK/projects/complex-clip/logs/$OUTPUT_DIR \
+    --dataset_name $FAST/clipfinecap/data/docci.hf \
     --do_train \
     --do_eval \
     --remove_unused_columns False \

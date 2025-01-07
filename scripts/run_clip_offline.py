@@ -450,7 +450,7 @@ def main():
 
     if training_args.do_eval:
         if "valid" not in dataset:
-            raise ValueError("--do_eval requires a train validation")
+            raise ValueError("--do_eval requires a validation split")
         eval_dataset = dataset["valid"]
 
         if data_args.max_eval_samples is not None:

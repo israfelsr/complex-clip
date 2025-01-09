@@ -47,7 +47,7 @@ torchrun --nproc_per_node=4 scripts/run_clip_offline.py \
     --tokenizer_name $WORK/data/HF/clip_tokenizer.hf\
     --image_processor_name $WORK/data/HF/clip_processor.hf \
     --output_dir $WORK/projects/complex-clip/logs/$OUTPUT_DIR \
-    --dataset_name $FAST/clipfinecap/data/docci.hf \
+    --dataset_name $FAST/clipfinecap/data/.hf \
     --do_train \
     --do_eval \
     --remove_unused_columns False \

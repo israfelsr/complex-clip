@@ -107,18 +107,26 @@ def main():
     parser = HfArgumentParser(ModelArguments)
     model_args = parser.parse_args_into_dataclasses()[0]
     accelerator = Accelerator()
+    device = accelerator.device
     print(model_args)
     clip, _, processor = open_clip.create_model_and_transforms(
-        "/leonardo_work/EUHPC_D12_071/ViT-B-32.pt",
+        "ViT-B-32",
         pretrained="openai",
         device=device,
         lora=model_args.lora,
     )
-    print(f"Model loaded from: {model_args.model_name_or_path}")
+
     tokenizer = open_clip.get_tokenizer("ViT-B-32")
 
+    checkpoint = torch.load(model_args.model_name_or_path, map_location="cpu")
+    print("Load from path:", model_args.model_name_or_path)
+    sd = checkpoint["state_dict"]
+
+    if next(iter(sd.items()))[0].startswith("module"):
+        sd = {k[len("module.") :]: v for k, v in sd.items()}
+    clip.load_state_dict(sd)
+    print(f"Model loaded from: {model_args.model_name_or_path}")
     clip.to(accelerator.process_index)
-    device = accelerator.device
 
     datasets_to_evaluate = [
         {

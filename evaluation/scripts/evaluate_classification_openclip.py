@@ -57,7 +57,7 @@ def evaluate_dataset(
                     template.format(classname) for template in templates
                 ]  # format with class
                 texts = tokenizer(texts).to(device)
-                class_embeddings = clip(None, texts)
+                class_embeddings = clip.encode_text(texts)
                 class_embeddings /= class_embeddings.norm(dim=-1, keepdim=True)
                 class_embedding = class_embeddings.mean(dim=0)
                 class_embedding /= class_embedding.norm()
@@ -88,7 +88,7 @@ def evaluate_dataset(
                 images = processor(sample[image_column], return_tensors="pt").to(device)
                 target = torch.tensor(sample[label_column]).to(device)
 
-                image_features = clip.get_image_features(**images)
+                image_features = clip.encode_image(images)
                 image_features /= image_features.norm(dim=-1, keepdim=True)
                 logits = 100.0 * image_features @ zeroshot_weights
 

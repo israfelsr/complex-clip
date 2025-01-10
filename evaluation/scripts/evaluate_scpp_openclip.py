@@ -145,12 +145,12 @@ def main():
 
     tokenizer = open_clip.get_tokenizer("ViT-B-32")
 
-    checkpoint = torch.load(args.model_name_or_path, map_location="cpu")
+    checkpoint = torch.load(args.model_path, map_location="cpu")
     sd = checkpoint["state_dict"]
     if next(iter(sd.items()))[0].startswith("module"):
         sd = {k[len("module.") :]: v for k, v in sd.items()}
     clip.load_state_dict(sd)
-    print(f"Model loaded from: {args.model_name_or_path}")
+    print(f"Model loaded from: {args.model_path}")
     clip.to(device)
 
     run_scpp_evals(clip, processor, tokenizer, device)

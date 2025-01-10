@@ -1,0 +1,7 @@
+ARO_ROOT = "/fsx/homes/Yova.Kementchedjhieva@mbzuai.ac.ae/.cache/prerelease_bow"
+COCO_ROOT = "/fsx/homes/Yova.Kementchedjhieva@mbzuai.ac.ae/.cache/coco/2014"
+FLICKR_ROOT = "/fsx/homes/Yova.Kementchedjhieva@mbzuai.ac.ae/.cache/flickr30k/images"
+URBAN_ROOT = "/fsx/homes/Yova.Kementchedjhieva@mbzuai.ac.ae/.cache/Urban1k"
+SDCI_ROOT = "/leonardo_scratch/fast/EUHPC_D12_071/clipfinecap/data/sdci_retrieval.hf"
+DOCCI_ROOT = "/leonardo_scratch/fast/EUHPC_D12_071/clipfinecap/data/docci_retrieval.hf"
+IIW_ROOT = "/leonardo_scratch/fast/EUHPC_D12_071/clipfinecap/data/iiw_retrieval.hf"

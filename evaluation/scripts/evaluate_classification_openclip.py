@@ -85,7 +85,7 @@ def evaluate_dataset(
             ds = dataset.select(dataset_indices)
             top1, top5, n = [], [], 0.0
             for sample in tqdm(ds):
-                images = processor(sample[image_column], return_tensors="pt").to(device)
+                images = processor(sample[image_column]).unsqueeze(0).to(device)
                 target = torch.tensor(sample[label_column]).to(device)
 
                 image_features = clip.encode_image(images)
@@ -119,7 +119,6 @@ def main():
     tokenizer = open_clip.get_tokenizer("ViT-B-32")
 
     checkpoint = torch.load(model_args.model_name_or_path, map_location="cpu")
-    print("Load from path:", model_args.model_name_or_path)
     sd = checkpoint["state_dict"]
 
     if next(iter(sd.items()))[0].startswith("module"):

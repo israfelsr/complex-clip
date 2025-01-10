@@ -398,7 +398,7 @@ def main():
     # We need to tokenize input captions and transform the images.
     def tokenize_captions(examples):
         captions = list(examples["caption"])
-        text_inputs = tokenizer(captions, padding="max_length", truncation=True)
+        text_inputs = tokenizer(captions, padding=True, truncation=True)
 
         examples["input_ids"] = text_inputs.input_ids
         examples["attention_mask"] = text_inputs.attention_mask

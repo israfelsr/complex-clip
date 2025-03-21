@@ -58,7 +58,6 @@ def evaluate_dataset(
                 ]  # format with class
                 texts = tokenizer(texts).to(device)
                 class_embeddings = clip.encode_text(texts)
-                class_embeddings /= class_embeddings.norm(dim=-1, keepdim=True)
                 class_embedding = class_embeddings.mean(dim=0)
                 class_embedding /= class_embedding.norm()
                 zeroshot_weights.append(class_embedding)

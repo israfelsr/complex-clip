@@ -53,7 +53,7 @@ def main():
 
     model.load_model(model_args, accelerator.process_index)
     if model_args.classification:
-        scores = evaluate_classification(model, device)
+        scores = evaluate_classification(model, device, accelerator)
 
     import code
 

@@ -25,7 +25,7 @@ class ContrastiveModel(ABC):
         pass
 
 
-def HuggingFaceCLIP(ContrastiveModel):
+class HuggingFaceCLIP(ContrastiveModel):
     def __init__(self):
         self.model = None
         self.tokenizer = None
@@ -45,10 +45,10 @@ def HuggingFaceCLIP(ContrastiveModel):
             )
         print(f"Model loaded from: {model_args.model_path}")
         self.tokenizer = CLIPTokenizer.from_pretrained(
-            model_args.tokenizer_name, local_files_only=model_args.local_files_only
+            model_args.model_path, local_files_only=model_args.local_files_only
         )
         self.processor = CLIPImageProcessor.from_pretrained(
-            model_args.image_processor_name,
+            model_args.model_path,
             local_files_only=model_args.local_files_only,
         )
         self.model.to(device)

@@ -2,6 +2,8 @@ from datasets import load_from_disk
 import numpy as np
 import torch
 from tqdm import tqdm
+from torch.utils.data import DataLoader
+from torch.utils.data.distributed import DistributedSampler
 
 from evaluation.templates.templates import DATASET
 
@@ -15,6 +17,7 @@ def evaluate_dataset(
     label_column,
     device,
     accelerator,
+    batch_size=32,
 ):
     """Evaluate the model on a specific dataset."""
 
@@ -23,7 +26,9 @@ def evaluate_dataset(
             zeroshot_weights = []
             for classname in tqdm(classnames):
                 texts = [template.format(classname) for template in templates]
-                class_embedding = model.encode_text(texts, device)
+                class_embeddings = model.encode_text(texts, device)
+                class_embedding = class_embeddings.mean(dim=0)
+                class_embedding /= class_embedding.norm()
                 zeroshot_weights.append(class_embedding)
             zeroshot_weights = torch.stack(zeroshot_weights, dim=1).cuda()
         return zeroshot_weights
@@ -40,21 +45,39 @@ def evaluate_dataset(
             for k in topk
         ]
 
-    # Evaluate
-    with torch.no_grad():
-        with accelerator.split_between_processes(
-            list(range(len(dataset)))
-        ) as dataset_indices:
-            ds = dataset.select(dataset_indices)
-            top1, top5, n = [], [], 0.0
-            for sample in tqdm(ds):
-                target = torch.tensor(sample[label_column]).to(device)
-                image_embedding = model.encode_image(sample[image_column], device)
-                logits = 100.0 * image_embedding @ zeroshot_weights
+    # Create a DataLoader for batched inference
+    def collate_fn(batch):
+        images = [sample[image_column] for sample in batch]
+        labels = [sample[label_column] for sample in batch]
+        return images, torch.tensor(labels, device=device)
 
-                acc1, acc5 = accuracy(logits, target, topk=(1, 5))
-                top1.append(acc1)
-                top5.append(acc5)
+    sampler = DistributedSampler(dataset, shuffle=False)
+    dataloader = DataLoader(
+        dataset,
+        batch_size=batch_size,
+        sampler=sampler,
+        collate_fn=collate_fn,
+        pin_memory=True,  # Faster data transfer to GPU
+    )
+
+    # Prepare the DataLoader for distributed inference
+    dataloader = accelerator.prepare(dataloader)
+
+    # Evaluate
+    top1, top5, n = [], [], 0.0
+    with torch.no_grad():
+        for images, targets in tqdm(dataloader):
+            images = [model.processor(images)]
+            import code
+
+            code.interact(local=locals())
+            target = torch.tensor(sample[label_column]).to(device)
+            image_embedding = model.encode_image(sample[image_column], device)
+            logits = 100.0 * image_embedding @ zeroshot_weights
+
+            acc1, acc5 = accuracy(logits, target, topk=(1, 5))
+            top1.append(acc1)
+            top5.append(acc5)
 
     # Summarize results
     top1 = np.sum(gather_object([top1]))
@@ -98,7 +121,6 @@ def evaluate_classification(model, device, accelerator):
         classes, templates = DATASET[dataset_info["name"]]
 
         print(f"Dataset {dataset} loaded")
-
         top1, top5 = evaluate_dataset(
             model,
             dataset,

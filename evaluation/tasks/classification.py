@@ -10,14 +10,11 @@ from evaluation.templates.templates import DATASET
 
 def evaluate_dataset(
     model,
-    dataset,
+    dataloader,
     classes,
     templates,
-    image_column,
-    label_column,
     device,
     accelerator,
-    batch_size=32,
 ):
     """Evaluate the model on a specific dataset."""
 
@@ -44,24 +41,6 @@ def evaluate_dataset(
             float(correct[:k].reshape(-1).float().sum(0, keepdim=True).cpu().numpy())
             for k in topk
         ]
-
-    # Create a DataLoader for batched inference
-    def collate_fn(batch):
-        images = [sample[image_column] for sample in batch]
-        labels = [sample[label_column] for sample in batch]
-        return images, torch.tensor(labels, device=device)
-
-    sampler = DistributedSampler(dataset, shuffle=False)
-    dataloader = DataLoader(
-        dataset,
-        batch_size=batch_size,
-        sampler=sampler,
-        collate_fn=collate_fn,
-        pin_memory=True,  # Faster data transfer to GPU
-    )
-
-    # Prepare the DataLoader for distributed inference
-    dataloader = accelerator.prepare(dataloader)
 
     # Evaluate
     top1, top5, n = [], [], 0.0
@@ -120,19 +99,25 @@ def evaluate_classification(model, device, accelerator):
 
         classes, templates = DATASET[dataset_info["name"]]
 
-        print(f"Dataset {dataset} loaded")
-        top1, top5 = evaluate_dataset(
-            model,
+        # Create a DataLoader for batched inference
+        def collate_fn(batch):
+            images = [sample["image_column"] for sample in batch]
+            labels = [sample["label_column"] for sample in batch]
+            return images, torch.tensor(labels, device=device)
+
+        sampler = DistributedSampler(dataset, shuffle=False)
+        dataloader = DataLoader(
             dataset,
-            classes,
-            templates,
-            dataset_info["image_column"],
-            dataset_info["label_column"],
-            device,
-            accelerator,
+            batch_size=32,
+            sampler=sampler,
+            collate_fn=collate_fn,
+            pin_memory=True,  # Faster data transfer to GPU
         )
-        # Store the results in the list
+        top1, top5 = evaluate_dataset(
+            model, dataloader, classes, templates, device, accelerator
+        )
         results.append({"Dataset": dataset_info["name"], "Top-1": top1, "Top-5": top5})
+
     return results
 
     if accelerator.is_main_process:

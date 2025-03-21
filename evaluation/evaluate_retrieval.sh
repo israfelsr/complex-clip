@@ -20,7 +20,7 @@ HF_DATASETS_OFFLINE=1
 HF_HUB_OFFLINE=1
 
 # Call the Python script with `accelerate launch` for multi-GPU compute
-python evaluation/extrinsic/scripts/evaluate_retrieval.py \
+python evaluation/scripts/evaluate_retrieval.py \
     --model_path $MODEL_PATH \
     --coco \
     --flickr

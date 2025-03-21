@@ -6,6 +6,7 @@ from typing import Optional
 from transformers import HfArgumentParser
 
 from models import HuggingFaceCLIP, OpenCLIP
+from tasks.classification import evaluate_classification
 
 
 @dataclass
@@ -13,9 +14,7 @@ class ModelArguments:
     model_variant: Optional[str] = field(
         default=None, metadata={"help": "HuggingFace/OpenCLIP"}
     )
-    model_name_or_path: Optional[str] = field(
-        default="openai/clip-vit-large-patch14", metadata={"help": "CLIP Model"}
-    )
+    model_path: Optional[str] = field(default="", metadata={"help": "Model path"})
     tokenizer_name: Optional[str] = field(
         default="", metadata={"help": "Tokenizer used to compute similarity"}
     )
@@ -30,6 +29,9 @@ class ModelArguments:
     )
     output_dir: Optional[str] = field(
         default="", metadata={"help": "Path to store results"}
+    )
+    classification: Optional[bool] = field(
+        default=False, metadata={"help": "Evaluate classification."}
     )
 
 
@@ -50,6 +52,8 @@ def main():
         )
 
     model.load_model(model_args, accelerator.process_index)
+    if model_args.classification:
+        scores = evaluate_classification(model, device)
 
     import code
 

@@ -97,8 +97,7 @@ def evaluate_classification(model, device, accelerator):
 
         classes, templates = DATASET[dataset_info["name"]]
 
-        print("Dataset loaded")
-        print(dataset)
+        print(f"Dataset {dataset} loaded")
 
         top1, top5 = evaluate_dataset(
             model,
@@ -112,6 +111,7 @@ def evaluate_classification(model, device, accelerator):
         )
         # Store the results in the list
         results.append({"Dataset": dataset_info["name"], "Top-1": top1, "Top-5": top5})
+    return results
 
     if accelerator.is_main_process:
         # Summary of all results at the end

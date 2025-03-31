@@ -11,13 +11,7 @@ from aro.dataset_zoo import (
     IIW_Retrieval,
 )
 
-COCO_DIR = "/leonardo_work/EUHPC_D12_071/coco/2014"
-FLICKR_DIR = "/leonardo_work/EUHPC_D12_071/data/flickr30k"
 ARO_DIR = "/leonardo_work/EUHPC_D12_071/ARO"
-URBAN_ROOT = "/leonardo_work/EUHPC_D12_071/Urban1k"
-SDCI_ROOT = "/leonardo_scratch/fast/EUHPC_D12_071/clipfinecap/data/sdci_retrieval.hf"
-DOCCI_ROOT = "/leonardo_scratch/fast/EUHPC_D12_071/clipfinecap/data/docci_retrieval.hf"
-IIW_ROOT = "/leonardo_scratch/fast/EUHPC_D12_071/clipfinecap/data/iiw_retrieval.hf"
 
 
 DATASETS = {
@@ -26,10 +20,30 @@ DATASETS = {
         "root_dir": "/leonardo_work/EUHPC_D12_071/coco/2014",
         "split": "test",
     },
-    "flickr": {  # Example new dataset
+    "flickr": {
         "class": Flickr30k_Retrieval,
         "root_dir": "/leonardo_work/EUHPC_D12_071/data/flickr30k",
         "split": "test",
+    },
+    "urban": {
+        "class": Urban1k_Retrieval,
+        "root_dir": "/leonardo_work/EUHPC_D12_071/Urban1k",
+        "split": "",
+    },
+    "sdci": {
+        "class": sDCI_Retrieval,
+        "root_dir": "/leonardo_scratch/fast/EUHPC_D12_071/clipfinecap/data/sdci_retrieval.hf",
+        "split": "",
+    },
+    "docci": {
+        "class": DOCCI_Retrieval,
+        "root_dir": "/leonardo_scratch/fast/EUHPC_D12_071/clipfinecap/data/docci_retrieval.hf",
+        "split": "",
+    },
+    "iiw": {
+        "class": IIW_Retrieval,
+        "root_dir": "/leonardo_scratch/fast/EUHPC_D12_071/clipfinecap/data/iiw_retrieval.hf",
+        "split": "",
     },
 }
 
@@ -41,6 +55,7 @@ def evaluate_retrieval(retrieval, model, device):
         images = [sample["image"] for sample in batch]
         return images
 
+    results = []
     for dataset_name in retrieval:
         if dataset_name not in DATASETS:
             raise ValueError(f"Unknown dataset: {dataset_name}")
@@ -59,6 +74,7 @@ def evaluate_retrieval(retrieval, model, device):
         scores = model.get_retrieval_scores_dataset(loader)
         records = dataset.evaluate_scores(scores)
 
-    import code
+        import code
 
-    code.interact(local=locals())
+        code.interact(local=locals())
+    return results

@@ -48,7 +48,7 @@ class HuggingFaceCLIP(ContrastiveModel):
                 model_path,
                 local_files_only=model_args.local_files_only,
             )
-        print(f"Model loaded from: {model_args.model_path}")
+        print(f"Model loaded from: {model_path}")
         self.tokenizer = CLIPTokenizer.from_pretrained(
             model_path, local_files_only=model_args.local_files_only
         )

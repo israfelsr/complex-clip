@@ -11,37 +11,54 @@ from aro.dataset_zoo import (
     IIW_Retrieval,
 )
 
-ARO_DIR = "/leonardo_work/EUHPC_D12_071/ARO"
 COCO_DIR = "/leonardo_work/EUHPC_D12_071/coco/2014"
 FLICKR_DIR = "/leonardo_work/EUHPC_D12_071/data/flickr30k"
+ARO_DIR = "/leonardo_work/EUHPC_D12_071/ARO"
 URBAN_ROOT = "/leonardo_work/EUHPC_D12_071/Urban1k"
 SDCI_ROOT = "/leonardo_scratch/fast/EUHPC_D12_071/clipfinecap/data/sdci_retrieval.hf"
 DOCCI_ROOT = "/leonardo_scratch/fast/EUHPC_D12_071/clipfinecap/data/docci_retrieval.hf"
 IIW_ROOT = "/leonardo_scratch/fast/EUHPC_D12_071/clipfinecap/data/iiw_retrieval.hf"
 
 
+DATASETS = {
+    "coco": {
+        "class": COCO_Retrieval,
+        "root_dir": "/leonardo_work/EUHPC_D12_071/coco/2014",
+        "split": "test",
+    },
+    "flickr30k": {  # Example new dataset
+        "class": Flickr30k_Retrieval,
+        "root_dir": "/leonardo_work/EUHPC_D12_071/data/flickr30k",
+        "split": "test",
+    },
+}
+
+
 def evaluate_retrieval(retrieval, model, device):
     model = AroWrap(model, device)
 
     def collate_fn(batch):
-        import code
+        images = [sample["image"] for sample in batch]
+        return images
 
-        code.interact(local=locals())
-        images = [sample[dataset_info["image_column"]] for sample in batch]
-        labels = [sample[dataset_info["label_column"]] for sample in batch]
-        return images, torch.tensor(labels, device=device)
+    for dataset_name in retrieval:
+        if dataset_name not in DATASETS:
+            raise ValueError(f"Unknown dataset: {dataset_name}")
 
-    if "coco" in retrieval:
-        root_dir = COCO_DIR
-        coco_dataset = COCO_Retrieval(
-            root_dir=root_dir,
-            split="test",
+        config = DATASETS[dataset_name]
+        dataset = config["class"](
+            root_dir=config["root_dir"],
+            split=config["test"],
         )
-        coco_loader = DataLoader(
-            coco_dataset,
+        loader = DataLoader(
+            dataset,
             batch_size=256,
             shuffle=False,
             collate_fn=collate_fn,
         )
-        coco_scores = model.get_retrieval_scores_dataset(coco_loader)
-        coco_records = coco_dataset.evaluate_scores(coco_scores)
+        scores = model.get_retrieval_scores_dataset(loader)
+        records = dataset.evaluate_scores(scores)
+
+    import code
+
+    code.interact(local=locals())

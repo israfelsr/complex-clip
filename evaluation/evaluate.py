@@ -44,7 +44,7 @@ class DataArguments:
 
 
 def main():
-    parser = HfArgumentParser(ModelArguments)
+    parser = HfArgumentParser([ModelArguments, DataArguments])
     model_args, data_args = parser.parse_args_into_dataclasses()
     accelerator = Accelerator()
     device = accelerator.device
@@ -64,7 +64,7 @@ def main():
     if data_args.classification:
         scores = evaluate_classification(model, device)
     if data_args.retrieval:
-        scores = evaluate_retrieval(retrieval, model, device)
+        scores = evaluate_retrieval(data_args.retrieval, model, device)
 
     # save parameters
     if False:

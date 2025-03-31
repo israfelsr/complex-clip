@@ -11,9 +11,9 @@ from tqdm import tqdm
 
 
 class AroWrap:
-    def __init__(self, model, tokenizer, device=None):
+    def __init__(self, model, device=None):
         self.model = model
-        self.tokenizer = tokenizer
+        self.tokenizer = None
         if device is None:
             device = model.device
         self.device = device
@@ -26,7 +26,7 @@ class AroWrap:
         tqdm_loader.set_description("Computing text embeddings")
         for i in tqdm_loader:
             text = texts[i : min(num_text, i + text_batch_size)]
-            text_feats = self.model.encode_text(text)
+            text_feats = self.model.encode_text(text, self.device)
             if normalize:
                 text_feats = F.normalize(text_feats, dim=-1)
             text_embeds.append(text_feats)
@@ -40,7 +40,7 @@ class AroWrap:
         tqdm_loader = tqdm(image_loader)
         tqdm_loader.set_description("Computing image embeddings")
         for batch in tqdm_loader:
-            image_feats = self.model.encode_images(batch["image"])
+            image_feats = self.model.encode_image(batch, self.device)
             if normalize:
                 image_feats = F.normalize(image_feats, dim=-1)
             image_embeds.append(image_feats)

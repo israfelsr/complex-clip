@@ -14,7 +14,6 @@ def evaluate_dataset(
     classes,
     templates,
     device,
-    accelerator,
 ):
     """Evaluate the model on a specific dataset."""
 
@@ -46,26 +45,24 @@ def evaluate_dataset(
     top1, top5, n = [], [], 0.0
     with torch.no_grad():
         for images, targets in tqdm(dataloader):
-            images = [model.processor(images)]
-            import code
-
-            code.interact(local=locals())
-            target = torch.tensor(sample[label_column]).to(device)
-            image_embedding = model.encode_image(sample[image_column], device)
+            image_embedding = model.encode_image(images, device)
             logits = 100.0 * image_embedding @ zeroshot_weights
 
-            acc1, acc5 = accuracy(logits, target, topk=(1, 5))
+            acc1, acc5 = accuracy(logits, targets, topk=(1, 5))
             top1.append(acc1)
             top5.append(acc5)
 
     # Summarize results
-    top1 = np.sum(gather_object([top1]))
-    top5 = np.sum(gather_object([top5]))
 
-    return (top1 / len(dataset)) * 100, (top5 / len(dataset)) * 100
+    top1 = np.sum(top1)
+    top5 = np.sum(top5)
+
+    return (top1 / len(dataloader.dataset)) * 100, (
+        top5 / len(dataloader.dataset)
+    ) * 100
 
 
-def evaluate_classification(model, device, accelerator):
+def evaluate_classification(model, device):
     print("Starting Classification")
     datasets_to_evaluate = [
         {
@@ -101,32 +98,25 @@ def evaluate_classification(model, device, accelerator):
 
         # Create a DataLoader for batched inference
         def collate_fn(batch):
-            images = [sample["image_column"] for sample in batch]
-            labels = [sample["label_column"] for sample in batch]
+            images = [sample["img"] for sample in batch]
+            labels = [sample["label"] for sample in batch]
             return images, torch.tensor(labels, device=device)
 
-        sampler = DistributedSampler(dataset, shuffle=False)
         dataloader = DataLoader(
             dataset,
             batch_size=32,
-            sampler=sampler,
             collate_fn=collate_fn,
-            pin_memory=True,  # Faster data transfer to GPU
         )
-        top1, top5 = evaluate_dataset(
-            model, dataloader, classes, templates, device, accelerator
-        )
+        top1, top5 = evaluate_dataset(model, dataloader, classes, templates, device)
         results.append({"Dataset": dataset_info["name"], "Top-1": top1, "Top-5": top5})
 
+    # Summary of all results at the end
+    print("\nSummary of results:")
+    print(f"{'Dataset':<20} {'Top-1 Accuracy (%)':<20} {'Top-5 Accuracy (%)':<20}")
+
+    # Print each dataset's result in a clean, tabular format
+    for result in results:
+        print(
+            f"{result['Dataset']:<20} {result['Top-1']:<20.2f} {result['Top-5']:<20.2f}"
+        )
     return results
-
-    if accelerator.is_main_process:
-        # Summary of all results at the end
-        print("\nSummary of results:")
-        print(f"{'Dataset':<20} {'Top-1 Accuracy (%)':<20} {'Top-5 Accuracy (%)':<20}")
-
-        # Print each dataset's result in a clean, tabular format
-        for result in results:
-            print(
-                f"{result['Dataset']:<20} {result['Top-1']:<20.2f} {result['Top-5']:<20.2f}"
-            )

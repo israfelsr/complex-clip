@@ -89,15 +89,13 @@ class OpenCLIP(ContrastiveModel):
         print(f"Model loaded from: {model_args.model_path}")
 
     def encode_text(self, texts, device):
-        texts = self.tokenizer(
-            texts, padding="max_length", return_tensors="pt", truncation=True
-        ).to(device)
-        embeddings = self.model.get_text_features(**texts)
+        texts = self.tokenizer(texts).to(device)
+        embeddings = self.model.encode_text(texts)
         embeddings /= embeddings.norm(dim=-1, keepdim=True)
         return embeddings
 
     def encode_image(self, images, device):
-        images = self.processor(images, return_tensors="pt").to(device)
-        embeddings = self.model.get_image_features(**images)
+        images = self.processor(images).unsqueeze(0).to(device)
+        embeddings = self.model.encode_image(images)
         embeddings /= embeddings.norm(dim=-1, keepdim=True)
         return embeddings

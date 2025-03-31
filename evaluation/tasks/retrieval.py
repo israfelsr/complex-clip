@@ -1,5 +1,4 @@
 from torch.utils.data import DataLoader
-import torch
 
 from aro.clip_aro_wrap import AroWrap
 from aro.dataset_zoo import (

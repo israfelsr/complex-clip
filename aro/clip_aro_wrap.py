@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 
 class AroWrap:
-    def __init__(self, model, device=None):
+    def __init__(self, model, tokenizer=None, device=None):
         self.model = model
         self.tokenizer = None
         if device is None:

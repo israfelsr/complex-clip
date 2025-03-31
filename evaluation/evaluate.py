@@ -70,7 +70,7 @@ def main():
         )
 
     # save parameters
-    model_name = Path(model_args.model_path).stem
+    model_name = Path(model_args.model_path).mkdir(parents=True, exist_ok=True).stem
     with open(f".results/{model_name}/results.json", "w") as f:
         json.dump(scores, f, indent=4)
 

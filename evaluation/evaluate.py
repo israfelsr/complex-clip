@@ -7,6 +7,7 @@ from transformers import HfArgumentParser
 from models import HuggingFaceCLIP, OpenCLIP
 from tasks.classification import evaluate_classification
 from tasks.retrieval import evaluate_retrieval
+from pathlib import Path
 
 
 @dataclass
@@ -60,16 +61,18 @@ def main():
         )
 
     model.load_model(model_args, accelerator.process_index)
-    scores = {}
+    scores = {"model": model_args.model_path, "experiments": {}}
     if data_args.classification:
-        scores = evaluate_classification(model, device)
+        scores["experiments"]["classification"] = evaluate_classification(model, device)
     if data_args.retrieval:
-        scores = evaluate_retrieval(data_args.retrieval, model, device)
+        scores["experiments"]["retrieval"] = evaluate_retrieval(
+            data_args.retrieval, model, device
+        )
 
     # save parameters
-    if False:
-        with open("model_args.json", "w") as f:
-            json.dump(asdict(model_args), f, indent=4)
+    model_name = Path(model_args.model_path).stem
+    with open(f".results/{model_name}/results.json", "w") as f:
+        json.dump(scores, f, indent=4)
 
 
 if __name__ == "__main__":

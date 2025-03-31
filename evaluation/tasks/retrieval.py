@@ -72,9 +72,7 @@ def evaluate_retrieval(retrieval, model, device):
             collate_fn=collate_fn,
         )
         scores = model.get_retrieval_scores_dataset(loader)
-        records = dataset.evaluate_scores(scores)
-
-        import code
-
-        code.interact(local=locals())
+        records = dataset.evaluate_scores(scores)[0]
+        records["Dataset"] = dataset_name
+        results.append(records)
     return results

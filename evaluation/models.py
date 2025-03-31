@@ -30,6 +30,7 @@ class HuggingFaceCLIP(ContrastiveModel):
         self.model = None
         self.tokenizer = None
         self.processor = None
+        self.tag = "huggingface"
 
     def load_model(self, model_args, device):
         if model_args.lora:
@@ -73,6 +74,7 @@ class OpenCLIP(ContrastiveModel):
         self.model = None
         self.tokenizer = None
         self.processor = None
+        self.tag = "openclip"
 
     def load_model(self, model_args, device):
         self.model, _, self.processor = open_clip.create_model_and_transforms(

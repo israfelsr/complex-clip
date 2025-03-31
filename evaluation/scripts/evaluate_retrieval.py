@@ -13,8 +13,6 @@ from aro.dataset_zoo import (
 from aro.clip_aro_wrap import AROtoHFCLIPWrap
 from transformers import CLIPImageProcessor, CLIPModel, CLIPTokenizer
 from torch.utils.data import DataLoader
-import pandas as pd
-from aro.misc import seed_all, _default_collate, save_scores
 
 import argparse
 
@@ -53,7 +51,7 @@ def run_aro_evals(
         )
         collate_fn = _default_collate if image_processor is None else None
         coco_loader = DataLoader(
-            coco_dataset, batch_size=32, shuffle=False, collate_fn=collate_fn
+            coco_dataset, batch_size=256, shuffle=False, collate_fn=collate_fn
         )
         coco_scores = model.get_retrieval_scores_dataset(coco_loader)
         coco_records = coco_dataset.evaluate_scores(coco_scores)
@@ -68,7 +66,7 @@ def run_aro_evals(
         )
         collate_fn = _default_collate if image_processor is None else None
         flickr_loader = DataLoader(
-            flickr_dataset, batch_size=32, shuffle=False, collate_fn=collate_fn
+            flickr_dataset, batch_size=256, shuffle=False, collate_fn=collate_fn
         )
         flickr_scores = model.get_retrieval_scores_dataset(flickr_loader)
         flickr_records = flickr_dataset.evaluate_scores(flickr_scores)
@@ -81,7 +79,7 @@ def run_aro_evals(
         )
         collate_fn = _default_collate if image_processor is None else None
         urban_loader = DataLoader(
-            urban_dataset, batch_size=32, shuffle=False, collate_fn=collate_fn
+            urban_dataset, batch_size=256, shuffle=False, collate_fn=collate_fn
         )
         urban_scores = model.get_retrieval_scores_dataset(urban_loader)
         urban_records = urban_dataset.evaluate_scores(urban_scores)
@@ -94,7 +92,7 @@ def run_aro_evals(
         )
         collate_fn = _default_collate if image_processor is None else None
         sdci_loader = DataLoader(
-            sdci_dataset, batch_size=32, shuffle=False, collate_fn=collate_fn
+            sdci_dataset, batch_size=256, shuffle=False, collate_fn=collate_fn
         )
         sdci_scores = model.get_retrieval_scores_dataset(sdci_loader)
         sdci_records = sdci_dataset.evaluate_scores(sdci_scores)
@@ -107,7 +105,7 @@ def run_aro_evals(
         )
         collate_fn = _default_collate if image_processor is None else None
         docci_loader = DataLoader(
-            docci_dataset, batch_size=32, shuffle=False, collate_fn=collate_fn
+            docci_dataset, batch_size=256, shuffle=False, collate_fn=collate_fn
         )
         docci_scores = model.get_retrieval_scores_dataset(docci_loader)
         docci_records = docci_dataset.evaluate_scores(docci_scores)
@@ -120,7 +118,7 @@ def run_aro_evals(
         )
         collate_fn = _default_collate if image_processor is None else None
         iiw_loader = DataLoader(
-            iiw_dataset, batch_size=32, shuffle=False, collate_fn=collate_fn
+            iiw_dataset, batch_size=256, shuffle=False, collate_fn=collate_fn
         )
         iiw_scores = model.get_retrieval_scores_dataset(iiw_loader)
         iiw_records = iiw_dataset.evaluate_scores(iiw_scores)

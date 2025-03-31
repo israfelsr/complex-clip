@@ -1,12 +1,12 @@
 from accelerate import Accelerator
-from accelerate.utils import gather_object
 from dataclasses import dataclass, field, asdict
 import json
-from typing import Optional
+from typing import Optional, List
 from transformers import HfArgumentParser
 
 from models import HuggingFaceCLIP, OpenCLIP
 from tasks.classification import evaluate_classification
+from tasks.retrieval import evaluate_retrieval
 
 
 @dataclass
@@ -30,14 +30,22 @@ class ModelArguments:
     output_dir: Optional[str] = field(
         default="", metadata={"help": "Path to store results"}
     )
+
+
+@dataclass
+class DataArguments:
     classification: Optional[bool] = field(
         default=False, metadata={"help": "Evaluate classification."}
+    )
+    retrieval: Optional[List[str]] = field(
+        default_factory=list,  # Default empty list
+        metadata={"help": "List of dataset names for retrieval evaluation."},
     )
 
 
 def main():
     parser = HfArgumentParser(ModelArguments)
-    model_args = parser.parse_args_into_dataclasses()[0]
+    model_args, data_args = parser.parse_args_into_dataclasses()
     accelerator = Accelerator()
     device = accelerator.device
 
@@ -52,12 +60,11 @@ def main():
         )
 
     model.load_model(model_args, accelerator.process_index)
-    if model_args.classification:
+    scores = {}
+    if data_args.classification:
         scores = evaluate_classification(model, device)
-
-    import code
-
-    code.interact(local=locals())
+    if data_args.retrieval:
+        scores = evaluate_retrieval(retrieval, model, device)
 
     # save parameters
     if False:

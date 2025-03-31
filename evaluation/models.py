@@ -95,7 +95,8 @@ class OpenCLIP(ContrastiveModel):
         return embeddings
 
     def encode_image(self, images, device):
-        images = self.processor(images).unsqueeze(0).to(device)
+        images = [self.processor(image) for image in images]
+        images = torch.stack(images, dim=0).to(device)
         embeddings = self.model.encode_image(images)
         embeddings /= embeddings.norm(dim=-1, keepdim=True)
         return embeddings

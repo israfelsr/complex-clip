@@ -3,7 +3,7 @@ import numpy as np
 import torch
 from tqdm import tqdm
 from torch.utils.data import DataLoader
-from torch.utils.data.distributed import DistributedSampler
+from functools import partial
 
 from evaluation.templates.templates import DATASET
 
@@ -97,15 +97,17 @@ def evaluate_classification(model, device):
         classes, templates = DATASET[dataset_info["name"]]
 
         # Create a DataLoader for batched inference
-        def collate_fn(batch):
-            images = [sample["img"] for sample in batch]
-            labels = [sample["label"] for sample in batch]
+        def collate_fn(datasets_to_evaluate, batch):
+            images = [sample[datasets_to_evaluate["image_column"]] for sample in batch]
+            labels = [sample[datasets_to_evaluate["label_column"]] for sample in batch]
             return images, torch.tensor(labels, device=device)
+
+        collate_fn_with_params = partial(collate_fn, datasets_to_evaluate)
 
         dataloader = DataLoader(
             dataset,
             batch_size=32,
-            collate_fn=collate_fn,
+            collate_fn=collate_fn_with_params,
         )
         top1, top5 = evaluate_dataset(model, dataloader, classes, templates, device)
         results.append({"Dataset": dataset_info["name"], "Top-1": top1, "Top-5": top5})

@@ -190,8 +190,8 @@ class COCO_Retrieval(Dataset):
 class Flickr30k_Retrieval(Dataset):
     def __init__(
         self,
-        image_preprocess,
         split,
+        image_preprocess=None,
         root_dir=FLICKR_ROOT,
         max_words=30,
         image_perturb_fn=None,
@@ -314,7 +314,7 @@ class Flickr30k_Retrieval(Dataset):
 class Urban1k_Retrieval(Dataset):
     def __init__(
         self,
-        image_preprocess,
+        image_preprocess=None,
         root_dir=URBAN_ROOT,
         max_words=1500,
         image_perturb_fn=None,
@@ -421,7 +421,7 @@ class Urban1k_Retrieval(Dataset):
 class sDCI_Retrieval(Dataset):
     def __init__(
         self,
-        image_preprocess,
+        image_preprocess=None,
         root_dir=SDCI_ROOT,
         max_words=1500,
         image_perturb_fn=None,
@@ -528,7 +528,7 @@ class sDCI_Retrieval(Dataset):
 class DOCCI_Retrieval(Dataset):
     def __init__(
         self,
-        image_preprocess,
+        image_preprocess=None,
         root_dir=DOCCI_ROOT,
         max_words=1500,
         image_perturb_fn=None,
@@ -635,7 +635,7 @@ class DOCCI_Retrieval(Dataset):
 class IIW_Retrieval(Dataset):
     def __init__(
         self,
-        image_preprocess,
+        image_preprocess=None,
         root_dir=IIW_ROOT,
         max_words=1500,
         image_perturb_fn=None,

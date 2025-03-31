@@ -3,8 +3,11 @@ import torch
 from transformers import CLIPModel, CLIPTokenizer, CLIPImageProcessor
 from peft import PeftModel
 import open_clip
+import os
 
-MODEL_ROOT = "/leonardo_work/EUHPC_D12_071/data/HF/clip-base"
+
+BASE = "/leonardo_work/EUHPC_D12_071/projects/complex-clip/models/clip-vit-base-patch32"
+MODEL_ROOT = "/leonardo_work/EUHPC_D12_071/projects/complex-clip/"
 
 
 class ContrastiveModel(ABC):
@@ -35,13 +38,13 @@ class HuggingFaceCLIP(ContrastiveModel):
     def load_model(self, model_args, device):
         if model_args.lora:
             base = CLIPModel.from_pretrained(
-                MODEL_ROOT,
+                BASE,
                 local_files_only=True,
             )
             self.model = PeftModel.from_pretrained(base, model_args.model_path)
         else:
             self.model = CLIPModel.from_pretrained(
-                model_args.model_path,
+                os.path.join(MODEL_ROOT, model_args.model_path),
                 local_files_only=model_args.local_files_only,
             )
         print(f"Model loaded from: {model_args.model_path}")

@@ -48,7 +48,7 @@ def evaluate_retrieval(retrieval, model, device):
         config = DATASETS[dataset_name]
         dataset = config["class"](
             root_dir=config["root_dir"],
-            split=config["test"],
+            split=config["split"],
         )
         loader = DataLoader(
             dataset,

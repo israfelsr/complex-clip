@@ -26,7 +26,7 @@ DATASETS = {
         "root_dir": "/leonardo_work/EUHPC_D12_071/coco/2014",
         "split": "test",
     },
-    "flickr30k": {  # Example new dataset
+    "flickr": {  # Example new dataset
         "class": Flickr30k_Retrieval,
         "root_dir": "/leonardo_work/EUHPC_D12_071/data/flickr30k",
         "split": "test",

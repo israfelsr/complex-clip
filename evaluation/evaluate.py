@@ -15,12 +15,8 @@ class ModelArguments:
     model_variant: Optional[str] = field(
         default=None, metadata={"help": "HuggingFace/OpenCLIP"}
     )
-    model_path: Optional[str] = field(default="", metadata={"help": "Model path"})
-    tokenizer_name: Optional[str] = field(
-        default="", metadata={"help": "Tokenizer used to compute similarity"}
-    )
-    image_processor_name: Optional[str] = field(
-        default="", metadata={"help": "Image Processor used to compute similarity"}
+    processor_path: Optional[str] = field(
+        default=None, metadata={"help": "Processor path if different from model"}
     )
     local_files_only: Optional[bool] = field(
         default=False, metadata={"help": "If using only local files"}
@@ -70,8 +66,10 @@ def main():
         )
 
     # save parameters
-    model_name = Path(model_args.model_path).mkdir(parents=True, exist_ok=True).stem
-    with open(f".results/{model_name}/results.json", "w") as f:
+    if not model_args.output_dir:
+        model_name = Path(model_args.model_path).mkdir(parents=True, exist_ok=True).stem
+        model_args.output_dir = f".results/{model_name}/results.json"
+    with open(model_args.output_dir, "w") as f:
         json.dump(scores, f, indent=4)
 
 

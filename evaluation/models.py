@@ -36,24 +36,26 @@ class HuggingFaceCLIP(ContrastiveModel):
         self.tag = "huggingface"
 
     def load_model(self, model_args, device):
-        model_path = os.path.join(MODEL_ROOT, model_args.model_path)
         if model_args.lora:
             base = CLIPModel.from_pretrained(
                 BASE,
                 local_files_only=True,
             )
-            self.model = PeftModel.from_pretrained(base, model_path)
+            self.model = PeftModel.from_pretrained(base, model_args.model_path)
         else:
             self.model = CLIPModel.from_pretrained(
-                model_path,
+                model_args.model_path,
                 local_files_only=model_args.local_files_only,
             )
-        print(f"Model loaded from: {model_path}")
+        print(f"Model loaded from: {model_args.model_path}")
+        if model_args.processor_path is None:
+            model_args.processor_path = model_args.model_path
+
         self.tokenizer = CLIPTokenizer.from_pretrained(
-            model_path, local_files_only=model_args.local_files_only
+            model_args.processor_path, local_files_only=model_args.local_files_only
         )
         self.processor = CLIPImageProcessor.from_pretrained(
-            model_path,
+            model_args.processor_path,
             local_files_only=model_args.local_files_only,
         )
         self.model.to(device)
@@ -85,14 +87,13 @@ class OpenCLIP(ContrastiveModel):
             "ViT-B-32", pretrained="openai", device=device
         )
         self.tokenizer = open_clip.get_tokenizer("ViT-B-32")
-        model_path = os.path.join(MODEL_ROOT, model_args.model_path)
-        checkpoint = torch.load(model_path, map_location="cpu")
+        checkpoint = torch.load(model_args.model_path, map_location="cpu")
         sd = checkpoint["state_dict"]
         if next(iter(sd.items()))[0].startswith("module"):
             sd = {k[len("module.") :]: v for k, v in sd.items()}
         self.model.load_state_dict(sd)
         self.model.to(device)
-        print(f"Model loaded from: {model_path}")
+        print(f"Model loaded from: {model_args.model_path}")
 
     def encode_text(self, texts, device):
         texts = self.tokenizer(texts).to(device)

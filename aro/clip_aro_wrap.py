@@ -65,16 +65,16 @@ class AroWrap:
         all_entries = []
         for cap_tuple in b["caption_options"]:
             all_entries += list(cap_tuple)
-        if self.model.type == "HF":
-            entries_tokenized = self.model.tokenizer(
-                all_entries, return_tensors="pt", padding=True
-            ).to(self.device)
-            pixel_values = b["image_options"][0]["pixel_values"][0]
-            all_logits = self.model.model(
-                input_ids=entries_tokenized["input_ids"],
-                attention_mask=entries_tokenized["attention_mask"],
-                pixel_values=pixel_values.to(self.device),
-            )
+
+        entries_tokenized = self.model.tokenizer(
+            all_entries, return_tensors="pt", padding=True
+        ).to(self.device)
+        pixel_values = b["image_options"][0]["pixel_values"][0]
+        all_logits = self.model.model(
+            input_ids=entries_tokenized["input_ids"],
+            attention_mask=entries_tokenized["attention_mask"],
+            pixel_values=pixel_values.to(self.device),
+        )
 
         def do_keep(a):
             rowsize = width * bs

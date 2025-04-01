@@ -32,8 +32,9 @@ class ContrastiveModel(ABC):
         embeddings = self._get_text_features(texts.to(device))
         return self._normalize(embeddings)
 
-    def encode_image(self, images, device):
-        images = self._prepare_image(images)
+    def encode_image(self, images, device, prepare=True):
+        if prepare:
+            images = self._prepare_image(images)
         embeddings = self._get_image_features(images.to(device))
         return self._normalize(embeddings)
 

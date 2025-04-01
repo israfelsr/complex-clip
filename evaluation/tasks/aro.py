@@ -23,7 +23,7 @@ def evaluate_aro(model, device):
     flickr_loader = DataLoader(flickr_order_dataset, batch_size=16, shuffle=False)
 
     # wrap the eval model
-    aro_wrap = AroWrap(model, device)
+    aro_wrap = AroWrap(model, device=device)
     vgr_scores = aro_wrap.get_retrieval_scores_batched(vgr_loader)
     # get scores for VG-R
     vgr_scores = aro_wrap.get_retrieval_scores_batched(vgr_loader)

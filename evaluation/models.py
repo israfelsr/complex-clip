@@ -27,13 +27,42 @@ class ContrastiveModel(ABC):
         """Load the model, tokenizer and processor"""
         pass
 
+    def encode_text(self, texts, device):
+        texts = self._prepare_text(texts)
+        embeddings = self._get_text_features(texts.to(device))
+        return self._normalize(embeddings)
+
+    def encode_image(self, images, device):
+        images = self._prepare_image(images)
+        embeddings = self._get_image_features(images.to(device))
+        return self._normalize(embeddings)
+
+    def _normalize(self, embeddings):
+        return embeddings / embeddings.norm(dim=-1, keepdim=True)
+
+    @abstractmethod
+    def _prepare_text(self, texts):
+        pass
+
+    @abstractmethod
+    def _prepare_image(self, images):
+        pass
+
+    @abstractmethod
+    def _get_text_features(self, inputs):
+        pass
+
+    @abstractmethod
+    def _get_image_features(self, inputs):
+        pass
+
 
 class HuggingFaceCLIP(ContrastiveModel):
     def __init__(self):
         self.model = None
         self.tokenizer = None
         self.processor = None
-        self.tag = "huggingface"
+        self.tag = "HF"
 
     def load_model(self, model_args, device):
         if model_args.lora:
@@ -60,19 +89,33 @@ class HuggingFaceCLIP(ContrastiveModel):
         )
         self.model.to(device)
 
-    def encode_text(self, texts, device):
-        texts = self.tokenizer(
+    def _prepare_text(self, texts):
+        return self.tokenizer(
             texts, padding="max_length", return_tensors="pt", truncation=True
-        ).to(device)
-        embeddings = self.model.get_text_features(**texts)
-        embeddings /= embeddings.norm(dim=-1, keepdim=True)
-        return embeddings
+        )
 
-    def encode_image(self, images, device):
-        images = self.processor(images, return_tensors="pt").to(device)
-        embeddings = self.model.get_image_features(**images)
-        embeddings /= embeddings.norm(dim=-1, keepdim=True)
-        return embeddings
+    def _prepare_image(self, images):
+        return self.processor(images, return_tensors="pt")["pixel_values"]
+
+    def _get_text_features(self, inputs):
+        return self.model.get_text_features(**inputs)
+
+    def _get_image_features(self, inputs):
+        return self.model.get_image_features(pixel_values=inputs)
+
+    # def encode_text(self, texts, device):
+    #     texts = self.tokenizer(
+    #         texts, padding="max_length", return_tensors="pt", truncation=True
+    #     ).to(device)
+    #     embeddings = self.model.get_text_features(**texts)
+    #     embeddings /= embeddings.norm(dim=-1, keepdim=True)
+    #     return embeddings
+
+    # def encode_image(self, images, device):
+    #     images = self.processor(images, return_tensors="pt").to(device)
+    #     embeddings = self.model.get_image_features(**images)
+    #     embeddings /= embeddings.norm(dim=-1, keepdim=True)
+    #     return embeddings
 
 
 class OpenCLIP(ContrastiveModel):
@@ -80,7 +123,7 @@ class OpenCLIP(ContrastiveModel):
         self.model = None
         self.tokenizer = None
         self.processor = None
-        self.tag = "openclip"
+        self.tag = "OpenCLIP"
 
     def load_model(self, model_args, device):
         self.model, _, self.processor = open_clip.create_model_and_transforms(
@@ -95,15 +138,29 @@ class OpenCLIP(ContrastiveModel):
         self.model.to(device)
         print(f"Model loaded from: {model_args.model_path}")
 
-    def encode_text(self, texts, device):
-        texts = self.tokenizer(texts).to(device)
-        embeddings = self.model.encode_text(texts)
-        embeddings /= embeddings.norm(dim=-1, keepdim=True)
-        return embeddings
+    def _prepare_text(self, texts):
+        return self.tokenizer(texts)
 
-    def encode_image(self, images, device):
-        images = [self.processor(image) for image in images]
-        images = torch.stack(images, dim=0).to(device)
-        embeddings = self.model.encode_image(images)
-        embeddings /= embeddings.norm(dim=-1, keepdim=True)
-        return embeddings
+    def _prepare_image(self, images):
+        if not isinstance(images, list):
+            images = [images]
+        return torch.stack([self.processor(img) for img in images])
+
+    def _get_text_features(self, inputs):
+        return self.model.encode_text(inputs)
+
+    def _get_image_features(self, inputs):
+        return self.model.encode_image(inputs)
+
+    # def encode_text(self, texts, device):
+    #     texts = self.tokenizer(texts).to(device)
+    #     embeddings = self.model.encode_text(texts)
+    #     embeddings /= embeddings.norm(dim=-1, keepdim=True)
+    #     return embeddings
+
+    # def encode_image(self, images, device):
+    #     images = [self.processor(image) for image in images]
+    #     images = torch.stack(images, dim=0).to(device)
+    #     embeddings = self.model.encode_image(images)
+    #     embeddings /= embeddings.norm(dim=-1, keepdim=True)
+    #     return embeddings

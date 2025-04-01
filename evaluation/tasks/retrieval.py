@@ -48,7 +48,7 @@ DATASETS = {
 
 
 def evaluate_retrieval(retrieval, model, device):
-    model = AroWrap(model, device)
+    model = AroWrap(model, device=device)
 
     def collate_fn(batch):
         images = [sample["image"] for sample in batch]

@@ -15,6 +15,9 @@ class ModelArguments:
     model_variant: Optional[str] = field(
         default=None, metadata={"help": "HuggingFace/OpenCLIP"}
     )
+    model_path: Optional[str] = field(
+        default=None, metadata={"help": "Processor path if different from model"}
+    )
     processor_path: Optional[str] = field(
         default=None, metadata={"help": "Processor path if different from model"}
     )

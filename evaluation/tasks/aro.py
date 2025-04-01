@@ -1,6 +1,7 @@
 from torch.utils.data import DataLoader
 from aro.clip_aro_wrap import AroWrap
 from aro.dataset_zoo import VG_Relation, VG_Attribution, COCO_Order, Flickr30k_Order
+import pandas as pd
 
 ARO_DIR = "/leonardo_work/EUHPC_D12_071/ARO"
 COCO_DIR = "/leonardo_work/EUHPC_D12_071/coco/2014"
@@ -23,6 +24,8 @@ def evaluate_aro(model, device):
 
     # wrap the eval model
     aro_wrap = AroWrap(model, device)
+    vgr_scores = aro_wrap.get_retrieval_scores_batched(vgr_loader)
+    # get scores for VG-R
     vgr_scores = aro_wrap.get_retrieval_scores_batched(vgr_loader)
     vgr_records = vgr_dataset.evaluate_scores(vgr_scores)
     symmetric = [
@@ -184,3 +187,35 @@ def evaluate_aro(model, device):
         "on the side of",
         "around",
     ]
+    df = pd.DataFrame(vgr_records)
+    df = df[~df.Relation.isin(symmetric)]
+    vgr_metric = df.Accuracy.mean()
+    print(f"VG-Relation Macro Accuracy: {vgr_metric}")
+
+    # get scores for VG-A
+    vga_scores = aro_wrap.get_retrieval_scores_batched(vga_loader)
+    vga_records = vga_dataset.evaluate_scores(vga_scores)
+    df = pd.DataFrame(vga_records)
+    vga_metric = df.Accuracy.mean()
+    print(f"VG-Attribution Macro Accuracy: {vga_metric}")
+
+    # get scores for COCO
+    coco_scores = aro_wrap.get_retrieval_scores_batched(coco_loader)
+    coco_records = coco_order_dataset.evaluate_scores(coco_scores)
+    df = pd.DataFrame(coco_records)
+    coco_metric = df["Precision@1"].mean()
+    print(f"COCO Precision@1: {coco_metric}")
+
+    # get scores for Flickr
+    flickr_scores = aro_wrap.get_retrieval_scores_batched(flickr_loader)
+    flickr_records = flickr_order_dataset.evaluate_scores(flickr_scores)
+    df = pd.DataFrame(flickr_records)
+    flickr_metric = df["Precision@1"].mean()
+    print(f"Flickr Precision@1: {flickr_metric}")
+
+    return {
+        "vgr_metric": vgr_metric,
+        "vga_metric": vga_metric,
+        "coco_metric": coco_metric,
+        "flickr_metric": flickr_metric,
+    }

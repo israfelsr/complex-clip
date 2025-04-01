@@ -5,9 +5,8 @@ from typing import Optional, List
 from transformers import HfArgumentParser
 
 from models import HuggingFaceCLIP, OpenCLIP
-from tasks.classification import evaluate_classification
-from tasks.retrieval import evaluate_retrieval
 from pathlib import Path
+from tasks import evaluate_classification, evaluate_retrieval, evaluate_aro
 
 
 @dataclass
@@ -65,6 +64,8 @@ def main():
         scores["experiments"]["retrieval"] = evaluate_retrieval(
             data_args.retrieval, model, device
         )
+    if data_args.aro:
+        scores["experiments"]["aro"] = evaluate_aro(model, device)
 
     # save results
     if not model_args.output_dir:

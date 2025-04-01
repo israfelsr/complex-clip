@@ -31,6 +31,9 @@ class ModelArguments:
 
 @dataclass
 class DataArguments:
+    aro: Optional[bool] = field(
+        default=False, metadata={"help": "Evaluate ARO datasets."}
+    )
     classification: Optional[bool] = field(
         default=False, metadata={"help": "Evaluate classification."}
     )

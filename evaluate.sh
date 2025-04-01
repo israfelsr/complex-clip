@@ -15,8 +15,7 @@ export PYTHONPATH=$(pwd)
 
 python evaluation/evaluate.py \
 --model_variant HuggingFace \
---retrieval urban sdci docci iiw \
---model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/logs/9904959-cclip/checkpoint-300 \
---processor_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/logs/9904959-cclip \
---output_dir ./results/9904959/ckpt300.json
+--aro \
+--model_path $WORK/projects/complex-clip/models/clip-vit-base-patch32 \
+--output_dir ./results/base/clip-vit-base-patch32.json
 #--model_path models/clip-vit-base-patch32

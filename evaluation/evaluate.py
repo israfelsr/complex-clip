@@ -15,9 +15,7 @@ class ModelArguments:
     model_variant: Optional[str] = field(
         default=None, metadata={"help": "HuggingFace/OpenCLIP"}
     )
-    model_path: Optional[str] = field(
-        default=None, metadata={"help": "Processor path if different from model"}
-    )
+    model_path: Optional[str] = field(default=None, metadata={"help": "Model path"})
     processor_path: Optional[str] = field(
         default=None, metadata={"help": "Processor path if different from model"}
     )
@@ -68,10 +66,11 @@ def main():
             data_args.retrieval, model, device
         )
 
-    # save parameters
+    # save results
     if not model_args.output_dir:
         model_name = Path(model_args.model_path).mkdir(parents=True, exist_ok=True).stem
         model_args.output_dir = f".results/{model_name}/results.json"
+    Path(model_args.output_dir).parent.mkdir(parents=True, exist_ok=True)
     with open(model_args.output_dir, "w") as f:
         json.dump(scores, f, indent=4)
 

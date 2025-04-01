@@ -24,7 +24,7 @@ mkdir $WORK/projects/complex-clip/logs/$OUTPUT_DIR
 
 #python scripts/run_clip_offline.py \
 torchrun --nproc_per_node=2 scripts/run_clip_offline.py \
-    --max_steps=300 \
+    --max_steps=600 \
     --gradient_accumulation_steps=1 \
     --per_device_train_batch_size=256 \
     --per_device_eval_batch_size=256 \
@@ -36,11 +36,11 @@ torchrun --nproc_per_node=2 scripts/run_clip_offline.py \
     --evaluation_strategy "steps" \
     --eval_steps 50 \
     --save_strategy "steps" \
-    --save_steps 50 \
+    --save_steps 300 \
     --lr_scheduler_type=cosine \
     --ddp_find_unused_parameters=False \
     --weight_decay 0 \
-    --save_total_limit 10 \
+    --save_total_limit 3 \
     --load_best_model_at_end True \
     --metric_for_best_model "eval_loss" \
     --model_name_or_path $WORK/projects/complex-clip/models/clip-vit-base-patch32 \

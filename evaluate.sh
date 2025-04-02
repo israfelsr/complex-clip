@@ -14,8 +14,9 @@
 export PYTHONPATH=$(pwd)
 
 python evaluation/evaluate.py \
---model_variant HuggingFace \
+--model_variant OpenCLIP \
 --aro \
---model_path $WORK/projects/complex-clip/models/clip-vit-base-patch32 \
+--model_path $WORK/projects/complex-clip/models/negclip/negclip.pth \
 --output_dir ./results/base/clip-vit-base-patch32.json
-#--model_path models/clip-vit-base-patch32
+#--model_path $WORK/projects/complex-clip/models/clip-vit-base-patch32 \
+

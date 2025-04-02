@@ -62,7 +62,7 @@ def main():
     model.load_model(
         model_path=model_args.model_path,
         device=accelerator.process_index,
-        processor_path=model_args.procesor_path,
+        processor_path=model_args.processor_path,
     )
     scores = {"model": model_args.model_path, "experiments": {}}
     if data_args.classification:

@@ -22,12 +22,6 @@ def evaluate_aro(model, device):
     coco_loader = DataLoader(coco_order_dataset, batch_size=16, shuffle=False)
     flickr_loader = DataLoader(flickr_order_dataset, batch_size=16, shuffle=False)
 
-    # wrap the eval model
-    aro_wrap = AroWrap(model, device=device)
-    vgr_scores = aro_wrap.get_retrieval_scores_batched(vgr_loader)
-    # get scores for VG-R
-    vgr_scores = aro_wrap.get_retrieval_scores_batched(vgr_loader)
-    vgr_records = vgr_dataset.evaluate_scores(vgr_scores)
     symmetric = [
         "adjusting",
         "attached to",
@@ -187,6 +181,13 @@ def evaluate_aro(model, device):
         "on the side of",
         "around",
     ]
+
+    # wrap the eval model
+    aro_wrap = AroWrap(model, device=device)
+
+    # get scores for VG-R
+    vgr_scores = aro_wrap.get_retrieval_scores_batched(vgr_loader)
+    vgr_records = vgr_dataset.evaluate_scores(vgr_scores)
     df = pd.DataFrame(vgr_records)
     df = df[~df.Relation.isin(symmetric)]
     vgr_metric = df.Accuracy.mean()

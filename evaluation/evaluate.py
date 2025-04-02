@@ -59,7 +59,11 @@ def main():
             "Must be 'HuggingFace' or 'OpenCLIP'."
         )
 
-    model.load_model(model_args, accelerator.process_index)
+    model.load_model(
+        model_path=model_args.model_path,
+        device=accelerator.process_index,
+        processor_path=model_args.procesor_path,
+    )
     scores = {"model": model_args.model_path, "experiments": {}}
     if data_args.classification:
         scores["experiments"]["classification"] = evaluate_classification(model, device)

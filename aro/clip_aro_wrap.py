@@ -73,7 +73,7 @@ class AroWrap:
         text_embeddings = self.model.encode_text(all_entries, self.device)
         logits_per_image = (
             image_embeddings @ text_embeddings.T
-        ) * self.model.logit_scale.exp()
+        ) * self.model.model.logit_scale.exp()
 
         # entries_tokenized = self.model.tokenizer(
         #     all_entries, return_tensors="pt", padding=True

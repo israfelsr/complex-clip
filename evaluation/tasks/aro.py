@@ -13,7 +13,7 @@ def evaluate_aro(model, device):
     vga_dataset = VG_Attribution(image_preprocess=model.processor, root_dir=ARO_DIR)
     coco_order_dataset = COCO_Order(image_preprocess=model.processor, root_dir=COCO_DIR)
     flickr_order_dataset = Flickr30k_Order(
-        image_preprocess=model.processor.processor,
+        image_preprocess=model.processor,
         split="test",
         root_dir=FLICKR_DIR,
     )

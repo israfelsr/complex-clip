@@ -66,15 +66,23 @@ class AroWrap:
         for cap_tuple in b["caption_options"]:
             all_entries += list(cap_tuple)
 
-        entries_tokenized = self.model.tokenizer(
-            all_entries, return_tensors="pt", padding=True
-        ).to(self.device)
         pixel_values = b["image_options"][0]["pixel_values"][0]
-        all_logits = self.model.model(
-            input_ids=entries_tokenized["input_ids"],
-            attention_mask=entries_tokenized["attention_mask"],
-            pixel_values=pixel_values.to(self.device),
+        image_embeddings = self.model.encode_image(
+            pixel_values, self.device, prepare=False
         )
+        text_embeddings = self.model.encode_text(all_entries, self.device)
+        logits_per_image = (
+            image_embeddings @ text_embeddings.T
+        ) * self.model.logit_scale.exp()
+
+        # entries_tokenized = self.model.tokenizer(
+        #     all_entries, return_tensors="pt", padding=True
+        # ).to(self.device)
+        # all_logits = self.model.model(
+        #     input_ids=entries_tokenized["input_ids"],
+        #     attention_mask=entries_tokenized["attention_mask"],
+        #     pixel_values=pixel_values.to(self.device),
+        # )
 
         def do_keep(a):
             rowsize = width * bs
@@ -84,7 +92,7 @@ class AroWrap:
             return curr_col == curr_row
 
         index_np = np.arange(width * bs * bs).reshape((bs, width * bs))
-        grouped = all_logits.logits_per_image.cpu().numpy()[do_keep(index_np)]
+        grouped = logits_per_image.cpu().numpy()[do_keep(index_np)]
 
         scores = grouped.reshape((bs, 1, width))
         return scores

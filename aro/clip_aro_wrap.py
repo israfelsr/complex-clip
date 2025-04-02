@@ -66,7 +66,11 @@ class AroWrap:
         for cap_tuple in b["caption_options"]:
             all_entries += list(cap_tuple)
 
-        pixel_values = b["image_options"][0]["pixel_values"][0]
+        if isinstance(b["image_options"][0], dict):  # HF-style format
+            pixel_values = b["image_options"][0]["pixel_values"][0]
+        else:  # OpenCLIP format (direct image)
+            pixel_values = b["image_options"][0]
+
         image_embeddings = self.model.encode_image(
             pixel_values, self.device, prepare=False
         )

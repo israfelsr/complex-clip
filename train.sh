@@ -8,7 +8,7 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=40G
 #SBATCH --time=10:00:00
-#SBATCH --gres=gpu:2
+#SBATCH --gres=gpu:4
 #SBATCH --output=./slurm/cclip_%j.log
 #export CUDA_VISIBLE_DEVICES=0
 
@@ -23,8 +23,8 @@ export OUTPUT_DIR=${SLURM_JOB_ID}
 mkdir $WORK/projects/complex-clip/logs/$OUTPUT_DIR
 
 #python scripts/run_clip_offline.py \
-torchrun --nproc_per_node=2 scripts/run_clip_offline.py \
-    --max_steps=600 \
+torchrun --nproc_per_node=4 scripts/run_clip_offline.py \
+    --max_steps=150 \
     --gradient_accumulation_steps=1 \
     --per_device_train_batch_size=256 \
     --per_device_eval_batch_size=256 \
@@ -36,7 +36,7 @@ torchrun --nproc_per_node=2 scripts/run_clip_offline.py \
     --evaluation_strategy "steps" \
     --eval_steps 50 \
     --save_strategy "steps" \
-    --save_steps 300 \
+    --save_steps 150 \
     --lr_scheduler_type=cosine \
     --ddp_find_unused_parameters=False \
     --weight_decay 0 \

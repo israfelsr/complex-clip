@@ -4,6 +4,8 @@ from transformers import CLIPModel, CLIPTokenizer, CLIPImageProcessor
 from peft import PeftModel
 import open_clip
 from longclip.model import longclip
+from dac.src.open_clip import create_model_and_transforms
+from dac.src.open_clip import tokenize
 
 
 BASE = "/leonardo_work/EUHPC_D12_071/projects/complex-clip/models/clip-vit-base-patch32"
@@ -113,17 +115,18 @@ class OpenCLIP(ContrastiveModel):
 
     def load_model(self, model_path, device, processor_path=None, lora=None):
         if lora:
-            self.model, _, self.processor = open_clip.create_model_and_transforms(
+            self.model, _, self.processor = create_model_and_transforms(
                 "ViT-B-32",
                 pretrained="openai",
                 device=device,
                 lora=4,
             )
+            self.tokenizer = tokenize
         else:
             self.model, _, self.processor = open_clip.create_model_and_transforms(
                 "ViT-B-32", pretrained="openai", device=device
             )
-        self.tokenizer = open_clip.get_tokenizer("ViT-B-32")
+            self.tokenizer = open_clip.get_tokenizer("ViT-B-32")
         checkpoint = torch.load(model_path, map_location="cpu")
         sd = checkpoint["state_dict"]
         if next(iter(sd.items()))[0].startswith("module"):

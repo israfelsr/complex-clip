@@ -112,9 +112,17 @@ class OpenCLIP(ContrastiveModel):
         self.tag = "OpenCLIP"
 
     def load_model(self, model_path, device, processor_path=None, lora=None):
-        self.model, _, self.processor = open_clip.create_model_and_transforms(
-            "ViT-B-32", pretrained="openai", device=device
-        )
+        if lora:
+            self.model, _, self.processor = open_clip.create_model_and_transforms(
+                "ViT-B-32",
+                pretrained="openai",
+                device=device,
+                lora=4,
+            )
+        else:
+            self.model, _, self.processor = open_clip.create_model_and_transforms(
+                "ViT-B-32", pretrained="openai", device=device
+            )
         self.tokenizer = open_clip.get_tokenizer("ViT-B-32")
         checkpoint = torch.load(model_path, map_location="cpu")
         sd = checkpoint["state_dict"]

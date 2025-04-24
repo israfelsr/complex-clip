@@ -4,8 +4,7 @@ from transformers import CLIPModel, CLIPTokenizer, CLIPImageProcessor
 from peft import PeftModel
 import open_clip
 from longclip.model import longclip
-from dac.src.open_clip import create_model_and_transforms
-from dac.src.open_clip import tokenize
+from DAC.src.open_clip import create_model_and_transforms, tokenize
 
 
 BASE = "/leonardo_work/EUHPC_D12_071/projects/complex-clip/models/clip-vit-base-patch32"
@@ -121,7 +120,7 @@ class OpenCLIP(ContrastiveModel):
                 device=device,
                 lora=4,
             )
-            self.tokenizer = tokenize
+            self.tokenzier = tokenize
         else:
             self.model, _, self.processor = open_clip.create_model_and_transforms(
                 "ViT-B-32", pretrained="openai", device=device

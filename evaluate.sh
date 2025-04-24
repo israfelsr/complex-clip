@@ -15,12 +15,13 @@ export PYTHONPATH=$(pwd)
 
 python evaluation/evaluate.py \
 --model_variant OpenCLIP \
---aro \
---model_path $WORK/projects/complex-clip/models/negclip/negclip.pth \
---output_dir ./results/base/clip-vit-base-patch32.json
-#--model_path $WORK/projects/complex-clip/models/clip-vit-base-patch32 \ #HuggingFace
-#--model_path /leonardo_work/EUHPC_D12_071/longclip/checkpoints/longclip-B.pt \ #LongCLIP
-#--model_path / sdci
+--retrieval sdci docci iiw \
+--output_dir ./results/base/clip-vit-base-patch32.json \
+--lora \
+--model_path $WORK/dci_pick1/ #HuggingFace lora
+#--model_path $WORK/projects/complex-clip/models/negclip/negclip.pth 
+#--model_path $WORK/projects/complex-clip/models/clip-vit-base-patch32 #HuggingFace
+#--model_path /leonardo_work/EUHPC_D12_071/longclip/checkpoints/longclip-B.pt #LongCLIP
 #--model_path / dac
 
 

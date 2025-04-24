@@ -65,6 +65,7 @@ def main():
         model_path=model_args.model_path,
         device=accelerator.process_index,
         processor_path=model_args.processor_path,
+        lora=model_args.lora,
     )
     scores = {"model": model_args.model_path, "experiments": {}}
     if data_args.classification:

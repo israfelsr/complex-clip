@@ -3,7 +3,7 @@ import torch
 from transformers import CLIPModel, CLIPTokenizer, CLIPImageProcessor
 from peft import PeftModel
 import open_clip
-from longclip import longclip
+from longclip.model import longclip
 
 
 BASE = "/leonardo_work/EUHPC_D12_071/projects/complex-clip/models/clip-vit-base-patch32"
@@ -71,6 +71,7 @@ class HuggingFaceCLIP(ContrastiveModel):
                 local_files_only=True,
             )
             self.model = PeftModel.from_pretrained(base, model_path)
+            self.model.merge_and_unload()
         else:
             self.model = CLIPModel.from_pretrained(
                 model_path,

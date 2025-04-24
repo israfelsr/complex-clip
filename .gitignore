@@ -2,3 +2,4 @@ __pycache__/
 slurm/
 wandb/
 .DS_Store
+plots/

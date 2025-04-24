@@ -45,7 +45,7 @@ def run_aro_evals(
         root_dir = COCO_DIR
         coco_dataset = COCO_Retrieval(
             image_preprocess=image_processor,
-            download=True,
+            download=False,
             root_dir=root_dir,
             split="test",
         )

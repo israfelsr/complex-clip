@@ -79,15 +79,6 @@ class AroWrap:
             image_embeddings @ text_embeddings.T
         ) * self.model.model.logit_scale.exp()
 
-        # entries_tokenized = self.model.tokenizer(
-        #     all_entries, return_tensors="pt", padding=True
-        # ).to(self.device)
-        # all_logits = self.model.model(
-        #     input_ids=entries_tokenized["input_ids"],
-        #     attention_mask=entries_tokenized["attention_mask"],
-        #     pixel_values=pixel_values.to(self.device),
-        # )
-
         def do_keep(a):
             rowsize = width * bs
 

@@ -3,7 +3,7 @@ import torch
 from transformers import CLIPModel, CLIPTokenizer, CLIPImageProcessor
 from peft import PeftModel
 import open_clip
-import os
+from longclip import longclip
 
 
 BASE = "/leonardo_work/EUHPC_D12_071/projects/complex-clip/models/clip-vit-base-patch32"
@@ -102,20 +102,6 @@ class HuggingFaceCLIP(ContrastiveModel):
     def _get_image_features(self, inputs):
         return self.model.get_image_features(pixel_values=inputs)
 
-    # def encode_text(self, texts, device):
-    #     texts = self.tokenizer(
-    #         texts, padding="max_length", return_tensors="pt", truncation=True
-    #     ).to(device)
-    #     embeddings = self.model.get_text_features(**texts)
-    #     embeddings /= embeddings.norm(dim=-1, keepdim=True)
-    #     return embeddings
-
-    # def encode_image(self, images, device):
-    #     images = self.processor(images, return_tensors="pt").to(device)
-    #     embeddings = self.model.get_image_features(**images)
-    #     embeddings /= embeddings.norm(dim=-1, keepdim=True)
-    #     return embeddings
-
 
 class OpenCLIP(ContrastiveModel):
     def __init__(self):
@@ -151,15 +137,27 @@ class OpenCLIP(ContrastiveModel):
     def _get_image_features(self, inputs):
         return self.model.encode_image(inputs)
 
-    # def encode_text(self, texts, device):
-    #     texts = self.tokenizer(texts).to(device)
-    #     embeddings = self.model.encode_text(texts)
-    #     embeddings /= embeddings.norm(dim=-1, keepdim=True)
-    #     return embeddings
 
-    # def encode_image(self, images, device):
-    #     images = [self.processor(image) for image in images]
-    #     images = torch.stack(images, dim=0).to(device)
-    #     embeddings = self.model.encode_image(images)
-    #     embeddings /= embeddings.norm(dim=-1, keepdim=True)
-    #     return embeddings
+class LongCLIP(ContrastiveModel):
+    def __init__(self):
+        self.model = None
+        self.tokenizer = None
+        self.processor = None
+        self.tag = "longclip"
+
+    def load_model(self, model_path, device, processor_path=None, lora=None, **kwargs):
+        self.model, self.processor = longclip.load(model_path, device=device)
+
+    def _prepare_text(self, texts):
+        return longclip.tokenize(texts, truncate=True)
+
+    def _prepare_image(self, images):
+        if not isinstance(images, list):
+            images = [images]
+        return torch.stack([self.processor(img) for img in images])
+
+    def _get_text_features(self, inputs):
+        return self.model.encode_text(inputs)
+
+    def _get_image_features(self, inputs):
+        return self.model.encode_image(inputs)

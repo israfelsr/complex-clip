@@ -4,7 +4,7 @@ import json
 from typing import Optional, List
 from transformers import HfArgumentParser
 
-from models import HuggingFaceCLIP, OpenCLIP
+from models import HuggingFaceCLIP, OpenCLIP, LongCLIP
 from pathlib import Path
 from tasks import evaluate_classification, evaluate_retrieval, evaluate_aro
 
@@ -53,6 +53,8 @@ def main():
         model = HuggingFaceCLIP()
     elif model_args.model_variant == "OpenCLIP":
         model = OpenCLIP()
+    elif model_args.model_variant == "LongCLIP":
+        model = LongCLIP()
     else:
         raise ValueError(
             f"Invalid model_variant: {model_args.model_variant}. "

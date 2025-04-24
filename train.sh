@@ -9,7 +9,7 @@
 #SBATCH --mem=40G
 #SBATCH --time=10:00:00
 #SBATCH --gres=gpu:4
-#SBATCH --output=./slurm/cclip_%j.log
+#SBATCH --output=./slurm/docci_%j.log
 #export CUDA_VISIBLE_DEVICES=0
 
 # Set environment variables
@@ -34,12 +34,12 @@ torchrun --nproc_per_node=4 scripts/run_clip_offline.py \
     --logging_strategy "steps" \
     --logging_steps=1 \
     --evaluation_strategy "steps" \
-    --eval_steps 50 \
+    --eval_steps 14 \
     --save_strategy "steps" \
-    --save_steps 150 \
+    --save_steps 50 \
     --lr_scheduler_type=cosine \
     --ddp_find_unused_parameters=False \
-    --weight_decay 0 \
+    --weight_decay 0.01 \
     --save_total_limit 3 \
     --load_best_model_at_end True \
     --metric_for_best_model "eval_loss" \
@@ -51,5 +51,5 @@ torchrun --nproc_per_node=4 scripts/run_clip_offline.py \
     --do_train \
     --do_eval \
     --remove_unused_columns False \
-    --warmup_steps 10
+    --warmup_steps 5
 #--num_train_epochs=10 \

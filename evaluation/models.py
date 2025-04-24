@@ -4,7 +4,7 @@ from transformers import CLIPModel, CLIPTokenizer, CLIPImageProcessor
 from peft import PeftModel
 import open_clip
 from longclip.model import longclip
-from DAC.src.open_clip import create_model_and_transforms, tokenize
+from DAC.src.open_clip import create_model_and_transforms
 
 
 BASE = "/leonardo_work/EUHPC_D12_071/projects/complex-clip/models/clip-vit-base-patch32"
@@ -120,12 +120,11 @@ class OpenCLIP(ContrastiveModel):
                 device=device,
                 lora=4,
             )
-            self.tokenzier = tokenize
         else:
             self.model, _, self.processor = open_clip.create_model_and_transforms(
                 "ViT-B-32", pretrained="openai", device=device
             )
-            self.tokenizer = open_clip.get_tokenizer("ViT-B-32")
+        self.tokenizer = open_clip.get_tokenizer("ViT-B-32")
         checkpoint = torch.load(model_path, map_location="cpu")
         sd = checkpoint["state_dict"]
         if next(iter(sd.items()))[0].startswith("module"):

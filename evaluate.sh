@@ -14,15 +14,12 @@
 export PYTHONPATH=$(pwd)
 
 python evaluation/evaluate.py \
---model_variant OpenCLIP \
---retrieval sdci docci iiw \
---output_dir ./results/base/clip-vit-base-patch32.json \
---lora \
---model_path /leonardo_work/EUHPC_D12_071/LLM_cp.pt #OpenClip lora
+--model_variant HuggingFace \
+--retrieval urban docci \
+--model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/logs/15165095/checkpoint-150/ \
+--processor_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/logs/15165095/
+#--model_path /leonardo_work/EUHPC_D12_071/LLM_cp.pt #OpenClip lora
 #--model_path $WORK/dci_pick1/ #HuggingFace lora
-#--model_path $WORK/projects/complex-clip/models/negclip/negclip.pth 
+#--model_path $WORK/projects/complex-clip/models/negclip/negclip.pth
 #--model_path $WORK/projects/complex-clip/models/clip-vit-base-patch32 #HuggingFace
 #--model_path /leonardo_work/EUHPC_D12_071/longclip/checkpoints/longclip-B.pt #LongCLIP
-
-
-

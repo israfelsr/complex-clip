@@ -15,9 +15,10 @@ export PYTHONPATH=$(pwd)
 
 python evaluation/evaluate.py \
 --model_variant HuggingFace \
---retrieval urban docci \
---model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/logs/15165095/checkpoint-150/ \
---processor_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/logs/15165095/
+--scpp \
+--model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/logs/15196243/checkpoint-500/ \
+--processor_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/logs/15165092/
+--output_dir ./results/15196243/scpp.json
 #--model_path /leonardo_work/EUHPC_D12_071/LLM_cp.pt #OpenClip lora
 #--model_path $WORK/dci_pick1/ #HuggingFace lora
 #--model_path $WORK/projects/complex-clip/models/negclip/negclip.pth

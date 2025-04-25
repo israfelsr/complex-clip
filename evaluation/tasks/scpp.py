@@ -2,6 +2,7 @@ from PIL import Image
 import torch, os, json
 import torch.nn as nn
 import torch.nn.functional as F
+import numpy as np
 
 img_path = "/leonardo_work/EUHPC_D12_071/coco/2014/val2014/COCO_val2014_"  #'path to the images folder'
 data_path = "../clip-fine-cap/scpp/data/"  #'path to folder with caption files'
@@ -10,6 +11,8 @@ image_size = 224
 
 
 def evaluate_scpp(model, device):
+    results = {}
+    scpp = []
     for fname in fnames:
         print(
             "=======================================================================",
@@ -87,6 +90,17 @@ def evaluate_scpp(model, device):
         print(f"Accuracy Image-P1-Neg: {ave_score_orig_p1 * 100}", flush=True)
         ave_score_orig_p2 = float(correct_img_p2) / float(total)
         print(f"Accuracy Image-P2-Neg: {ave_score_orig_p2 * 100}", flush=True)
-
         ave_score_txt = float(correct_text) / float(total)
         print(f"Accuracy text-only task: {ave_score_txt * 100}", flush=True)
+
+        results[fname] = {
+            "I2T": ave_score * 100,
+            "P1": ave_score_orig_p1 * 100,
+            "P2": ave_score_orig_p2 * 100,
+            "TOT": ave_score_txt * 100,
+        }
+        scpp.append(ave_score * 100)
+        scpp.append(ave_score_txt * 100)
+
+    results["scpp"] = np.mean(results)
+    return results

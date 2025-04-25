@@ -24,19 +24,19 @@ mkdir $WORK/projects/complex-clip/logs/$OUTPUT_DIR
 
 #python scripts/run_clip_offline.py \
 torchrun --nproc_per_node=4 scripts/run_clip_offline.py \
-    --max_steps=1500 \
+    --max_steps=3000 \
     --gradient_accumulation_steps=1 \
     --per_device_train_batch_size=256 \
     --per_device_eval_batch_size=256 \
     --eval_accumulation_steps=1 \
-    --learning_rate=5e-6 \
+    --learning_rate=3e-6 \
     --full_determinism=True \
     --logging_strategy "steps" \
     --logging_steps=1 \
     --evaluation_strategy "steps" \
     --eval_steps 14 \
     --save_strategy "steps" \
-    --save_steps 500 \
+    --save_steps 1000 \
     --lr_scheduler_type=cosine \
     --ddp_find_unused_parameters=False \
     --weight_decay 0.01 \
@@ -47,7 +47,7 @@ torchrun --nproc_per_node=4 scripts/run_clip_offline.py \
     --tokenizer_name $WORK/projects/complex-clip/models/clip-vit-base-patch32 \
     --image_processor_name $WORK/projects/complex-clip/models/clip-vit-base-patch32 \
     --output_dir $WORK/projects/complex-clip/logs/$OUTPUT_DIR \
-    --dataset_name $FAST/clipfinecap/data/localized_narratives.hf \
+    --dataset_name $FAST/clipfinecap/data/sharegpt4v.hf \
     --do_train \
     --do_eval \
     --remove_unused_columns False \

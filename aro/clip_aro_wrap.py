@@ -66,7 +66,9 @@ class AroWrap:
         for cap_tuple in b["caption_options"]:
             all_entries += list(cap_tuple)
 
-        if isinstance(b["image_options"][0], dict):  # HF-style format
+        if hasattr(b["image_options"][0], "pixel_values"):
+            pixel_values = b["image_options"][0]["pixel_values"][0]
+        elif isinstance(b["image_options"][0], dict):  # HF-style format
             pixel_values = b["image_options"][0]["pixel_values"][0]
         else:  # OpenCLIP format (direct image)
             pixel_values = b["image_options"][0]

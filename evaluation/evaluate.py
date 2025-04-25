@@ -6,7 +6,12 @@ from transformers import HfArgumentParser
 
 from models import HuggingFaceCLIP, OpenCLIP, LongCLIP
 from pathlib import Path
-from tasks import evaluate_classification, evaluate_retrieval, evaluate_aro
+from tasks import (
+    evaluate_classification,
+    evaluate_retrieval,
+    evaluate_aro,
+    evaluate_scpp,
+)
 
 
 @dataclass
@@ -33,6 +38,9 @@ class ModelArguments:
 class DataArguments:
     aro: Optional[bool] = field(
         default=False, metadata={"help": "Evaluate ARO datasets."}
+    )
+    scpp: Optional[bool] = field(
+        default=False, metadata={"help": "Evaluate scpp dataset."}
     )
     classification: Optional[bool] = field(
         default=False, metadata={"help": "Evaluate classification."}
@@ -76,6 +84,8 @@ def main():
         )
     if data_args.aro:
         scores["experiments"]["aro"] = evaluate_aro(model, device)
+    if data_args.scpp:
+        scores["scpp"]["scpp"] = evaluate_scpp(model, device)
 
     # save results
     if not model_args.output_dir:

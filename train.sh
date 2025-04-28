@@ -3,10 +3,9 @@
 #SBATCH -A EUHPC_D12_071
 #SBATCH -p boost_usr_prod
 #SBATCH --job-name=cclip
-#SBATCH --ntasks-per-node=4
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=40G
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=64G
 #SBATCH --time=10:00:00
 #SBATCH --gres=gpu:4
 #SBATCH --output=./slurm/docci_%j.log

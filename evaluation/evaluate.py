@@ -85,7 +85,7 @@ def main():
     if data_args.aro:
         scores["experiments"]["aro"] = evaluate_aro(model, device)
     if data_args.scpp:
-        scores["scpp"]["scpp"] = evaluate_scpp(model, device)
+        scores["experiments"]["scpp"] = evaluate_scpp(model, device)
 
     # save results
     if not model_args.output_dir:

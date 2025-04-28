@@ -102,5 +102,5 @@ def evaluate_scpp(model, device):
         scpp.append(ave_score * 100)
         scpp.append(ave_score_txt * 100)
 
-    results["scpp"] = np.mean(results)
+    results["scpp"] = np.mean(scpp)
     return results

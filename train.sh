@@ -50,5 +50,6 @@ torchrun --nproc_per_node=4 scripts/run_clip_offline.py \
     --do_train \
     --do_eval \
     --remove_unused_columns False \
+    --multicaption True \
     --warmup_steps 75
 #--num_train_epochs=10 \

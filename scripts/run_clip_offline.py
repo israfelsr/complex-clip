@@ -52,6 +52,7 @@ from transformers.utils import send_example_telemetry
 os.environ["WANDB_ENTITY"] = "clipblip"
 os.environ["WANDB_PROJECT"] = "complex-clip"  # adding new project
 logger = logging.getLogger(__name__)
+import random
 
 
 @dataclass
@@ -202,6 +203,9 @@ class DataTrainingArguments:
     preprocessing_num_workers: Optional[int] = field(
         default=None,
         metadata={"help": "The number of processes to use for the preprocessing."},
+    )
+    multicaption = Optional[bool] = field(
+        default=False, metadata={"help": "If dataset contains multiple captions"}
     )
 
 
@@ -428,6 +432,31 @@ def main():
             "return_loss": True,
         }
 
+    def collate_fn_multiple_captions(examples):
+        pixel_values = torch.stack([example["pixel_values"] for example in examples])
+
+        # Randomly pick one caption per example
+        captions = [random.choice(example["caption"]) for example in examples]
+
+        # Now tokenize the selected captions on-the-fly
+        text_inputs = tokenizer(
+            captions,
+            padding="max_length",
+            truncation=True,
+            max_length=data_args.max_seq_length,
+            return_tensors="pt",
+        )
+
+        input_ids = text_inputs.input_ids
+        attention_mask = text_inputs.attention_mask
+
+        return {
+            "pixel_values": pixel_values,
+            "input_ids": input_ids,
+            "attention_mask": attention_mask,
+            "return_loss": True,
+        }
+
     if training_args.do_train:
         if "train" not in dataset:
             print("Using full dataset as training")
@@ -436,14 +465,15 @@ def main():
         if data_args.max_train_samples is not None:
             max_train_samples = min(len(train_dataset), data_args.max_train_samples)
             train_dataset = train_dataset.select(range(max_train_samples))
-        train_dataset = train_dataset.map(
-            function=tokenize_captions,
-            batched=True,
-            batch_size=2,
-            num_proc=data_args.preprocessing_num_workers,
-            load_from_cache_file=not data_args.overwrite_cache,
-            desc="Running tokenizer on train dataset",
-        )
+        if not data_args.multicaption:
+            train_dataset = train_dataset.map(
+                function=tokenize_captions,
+                batched=True,
+                batch_size=2,
+                num_proc=data_args.preprocessing_num_workers,
+                load_from_cache_file=not data_args.overwrite_cache,
+                desc="Running tokenizer on train dataset",
+            )
 
         # Transform images on the fly as doing it on the whole dataset takes too much time.
         train_dataset.set_transform(transform_images)
@@ -457,17 +487,21 @@ def main():
             max_eval_samples = min(len(eval_dataset), data_args.max_eval_samples)
             eval_dataset = eval_dataset.select(range(max_eval_samples))
 
-        eval_dataset = eval_dataset.map(
-            function=tokenize_captions,
-            batched=True,
-            batch_size=2,
-            num_proc=data_args.preprocessing_num_workers,
-            load_from_cache_file=not data_args.overwrite_cache,
-            desc="Running tokenizer on eval dataset",
-        )
+        if not data_args.multicaption:
+            eval_dataset = eval_dataset.map(
+                function=tokenize_captions,
+                batched=True,
+                batch_size=2,
+                num_proc=data_args.preprocessing_num_workers,
+                load_from_cache_file=not data_args.overwrite_cache,
+                desc="Running tokenizer on eval dataset",
+            )
         eval_dataset.set_transform(transform_images)
 
     # 8. Initialize our trainer
+    if data_args.multicaption:
+        collate_fn = collate_fn_multiple_captions
+
     trainer = Trainer(
         model=model,
         args=training_args,
@@ -484,18 +518,13 @@ def main():
         elif last_checkpoint is not None:
             checkpoint = last_checkpoint
         train_result = trainer.train(resume_from_checkpoint=checkpoint)
-        trainer.save_model(f"{training_args.output_dir}/last_ckpt.hf")
-        tokenizer.save_pretrained(training_args.output_dir)
-        image_processor.save_pretrained(training_args.output_dir)
-        trainer.log_metrics("train", train_result.metrics)
-        trainer.save_metrics("train", train_result.metrics)
         trainer.save_state()
 
     # 10. Evaluation
-    if training_args.do_eval:
-        metrics = trainer.evaluate()
-        trainer.log_metrics("eval", metrics)
-        trainer.save_metrics("eval", metrics)
+    # if training_args.do_eval:
+    #     metrics = trainer.evaluate()
+    #     trainer.log_metrics("eval", metrics)
+    #     trainer.save_metrics("eval", metrics)
 
 
 if __name__ == "__main__":

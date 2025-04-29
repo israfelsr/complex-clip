@@ -204,7 +204,7 @@ class DataTrainingArguments:
         default=None,
         metadata={"help": "The number of processes to use for the preprocessing."},
     )
-    multicaption = Optional[bool] = field(
+    multicaption: Optional[bool] = field(
         default=False, metadata={"help": "If dataset contains multiple captions"}
     )
 
@@ -327,7 +327,12 @@ def main():
     if training_args.do_eval:
         if data_args.dataset_val_name is not None:
             val_dataset = load_from_disk(data_args.dataset_val_name)
-            dataset = {"train": dataset, "valid": val_dataset}
+            val_ids = set(val_dataset["image"])
+            filtered_dataset = dataset.filter(
+                lambda example: example["image"] not in val_ids, num_proc=4
+            )
+            print(f"Train:{len(dataset)} | Filtered:{len(filtered_dataset)}")
+            dataset = {"train": filtered_dataset, "valid": val_dataset}
         else:
             dataset = dataset.train_test_split(0.1, seed=training_args.seed)
             dataset = {"train": dataset["train"], "valid": dataset["test"]}
@@ -443,7 +448,6 @@ def main():
             captions,
             padding="max_length",
             truncation=True,
-            max_length=data_args.max_seq_length,
             return_tensors="pt",
         )
 

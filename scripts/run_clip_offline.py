@@ -45,6 +45,7 @@ from transformers import (
     TrainingArguments,
     set_seed,
     CLIPModel,
+    TrainerCallback,
 )
 from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import send_example_telemetry
@@ -53,6 +54,16 @@ os.environ["WANDB_ENTITY"] = "clipblip"
 os.environ["WANDB_PROJECT"] = "complex-clip"  # adding new project
 logger = logging.getLogger(__name__)
 import random
+
+
+class StepCheckpointCallback(TrainerCallback):
+    def __init__(self, checkpoint_steps):
+        self.checkpoint_steps = checkpoint_steps
+
+    def on_step_end(self, args, state, control, **kwargs):
+        if state.global_step in self.checkpoint_steps:
+            control.should_save = True  # Force checkpoint save
+        return control
 
 
 @dataclass
@@ -506,12 +517,16 @@ def main():
     if data_args.multicaption:
         collate_fn = collate_fn_multiple_captions
 
+    # checkpoints
+    checkpoint_steps = [100, 200, 300, 400, 500, 1000, 1500, 2000, 2500, 3000]
+
     trainer = Trainer(
         model=model,
         args=training_args,
         train_dataset=train_dataset if training_args.do_train else None,
         eval_dataset=eval_dataset if training_args.do_eval else None,
         data_collator=collate_fn,
+        callbacks=[StepCheckpointCallback(checkpoint_steps)],
     )
 
     # 9. Training

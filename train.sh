@@ -50,6 +50,6 @@ torchrun --nproc_per_node=4 scripts/run_clip_offline.py \
     --remove_unused_columns False \
     --multicaption True \
     --warmup_steps 10
-    #--save_total_limit 3 \
+    #--save_total_limit 3 \ 
     #--save_strategy "steps" \
     #--save_steps 100 \

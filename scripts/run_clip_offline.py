@@ -518,7 +518,7 @@ def main():
         collate_fn = collate_fn_multiple_captions
 
     # checkpoints
-    checkpoint_steps = [100, 200, 300, 400, 500, 1000, 1500, 2000, 2500, 3000]
+    checkpoint_steps = [100, 200, 300, 400, 500, 1000, 1500, 2000, 3000]
 
     trainer = Trainer(
         model=model,

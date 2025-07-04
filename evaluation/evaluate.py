@@ -4,6 +4,7 @@ import json
 from typing import Optional, List
 from transformers import HfArgumentParser
 
+from evaluation.tasks.winoground import evaluate_winoground
 from models import HuggingFaceCLIP, OpenCLIP, LongCLIP
 from pathlib import Path
 from tasks import (
@@ -86,7 +87,8 @@ def main():
         scores["experiments"]["aro"] = evaluate_aro(model, device)
     if data_args.scpp:
         scores["experiments"]["scpp"] = evaluate_scpp(model, device)
-
+    if data_args.winoground:
+        scores["experiments"]["winoground"] = evaluate_winoground(model, device)
     # save results
     if not model_args.output_dir:
         model_name = Path(model_args.model_path).stem

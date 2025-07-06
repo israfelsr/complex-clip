@@ -1,6 +1,7 @@
 from datasets import load_dataset
 from tqdm import tqdm
 import torch.nn as nn
+import torch
 
 def text_correct(result):
     return result["c0_i0"] > result["c1_i0"] and result["c1_i1"] > result["c0_i1"]
@@ -14,25 +15,26 @@ def group_correct(result):
 
 def evaluate_winoground(model, device):
     scores = []
-    dataset = load_dataset("facebook/winoground")
-    for item in tqdm(dataset):
-        image0 = item["image_0"]
-        image1 = item["image_1"]
-        caption0 = item["caption_0"]
-        caption1 = item["caption_1"]
+    dataset = load_dataset("facebook/winoground", split="test")
+    with torch.no_grad():
+        for item in tqdm(dataset):
+            image0 = item["image_0"]
+            image1 = item["image_1"]
+            caption0 = item["caption_0"]
+            caption1 = item["caption_1"]
 
-        image0_feats = model.encode_image(image0, device)
-        image1_feats = model.encode_image(image1, device)
-        caption0_feats = model.encode_text(caption0, device)
-        caption1_feats = model.encode_text(caption1, device)
+            image0_feats = model.encode_image(image0, device)
+            image1_feats = model.encode_image(image1, device)
+            caption0_feats = model.encode_text(caption0, device)
+            caption1_feats = model.encode_text(caption1, device)
 
-        cos = nn.CosineSimilarity(dim=1, eps=1e-6)
-        cos_c0_i0 = cos(caption0_feats, image0_feats)
-        cos_c0_i1 = cos(caption0_feats, image1_feats)
-        cos_c1_i0 = cos(caption1_feats, image0_feats)
-        cos_c1_i1 = cos(caption1_feats, image1_feats)
-    
-        scores.append({"id":item["id"], "c0_i0": cos_c0_i0, "c0_i1": cos_c0_i1, "c1_i0": cos_c1_i0, "c1_i1": cos_c1_i1})
+            cos = nn.CosineSimilarity(dim=1, eps=1e-6)
+            cos_c0_i0 = cos(caption0_feats, image0_feats)
+            cos_c0_i1 = cos(caption0_feats, image1_feats)
+            cos_c1_i0 = cos(caption1_feats, image0_feats)
+            cos_c1_i1 = cos(caption1_feats, image1_feats)
+        
+            scores.append({"id":item["id"], "c0_i0": cos_c0_i0, "c0_i1": cos_c0_i1, "c1_i0": cos_c1_i0, "c1_i1": cos_c1_i1})
     
     text_correct_count = 0
     image_correct_count = 0

@@ -43,6 +43,9 @@ class DataArguments:
     scpp: Optional[bool] = field(
         default=False, metadata={"help": "Evaluate scpp dataset."}
     )
+    winoground: Optional[bool] = field(
+        default=False, metadata={"help": "Evaluate winoground dataset."}
+    )
     classification: Optional[bool] = field(
         default=False, metadata={"help": "Evaluate classification."}
     )

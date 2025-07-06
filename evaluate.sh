@@ -16,7 +16,7 @@ python evaluation/evaluate.py \
 --model_variant HuggingFace \
 --winoground \
 --processor_path ../../data/projects/complex-clip/models/clip-vit-base-patch32 \
---output_dir ./results/base/winoground.json
+--output_dir ./results/base/winoground.json \
 --model_path ../../data/projects/complex-clip/models/clip-vit-base-patch32 #HuggingFace
 #--model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/logs/15198382/checkpoint-2000/ \
 #--retrieval coco flickr urban sdci docci iiw \

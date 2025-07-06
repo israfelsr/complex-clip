@@ -14,7 +14,7 @@ def group_correct(result):
 
 def evaluate_winoground(model, device):
     scores = []
-    dataset = load_dataset("winoground")
+    dataset = load_dataset("facebook/winoground")
     for item in tqdm(dataset):
         image0 = item["image_0"]
         image1 = item["image_1"]

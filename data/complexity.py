@@ -13,6 +13,7 @@ URBAN1K_DIR = "/home/bzq999/data/complexclip/eval/Urban1k/caption/"
 SDCI_ROOT = "/home/bzq999/data/complexclip/eval/sdci_retrieval.hf"
 DOCCI_ROOT = "/home/bzq999/data/complexclip/eval/docci_retrieval.hf"
 IIW_ROOT = "/home/bzq999/data/complexclip/eval/iiw_retrieval.hf"
+LN_ROOT = "/home/bzq999/data/complexclip/eval/localized_narratives.hf"
 
 def get_complexity_scores(sentence: str, nlp_pipeline):
     """
@@ -122,6 +123,9 @@ def load_captions(dataset):
         dataset = load_from_disk(DOCCI_ROOT)
         captions = [caption for item in dataset for caption in item['caption']]
         return captions
+    elif dataset == "ln":
+        dataset = load_from_disk(LN_ROOT)
+        return dataset['caption']
     else:
         raise ValueError("Unknown dataset: {}".format(dataset))
 

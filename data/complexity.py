@@ -3,6 +3,11 @@ from datasets import load_from_disk
 import stanza
 from tqdm import tqdm
 stanza.download('en')
+import json
+import os
+
+
+COCO_DIR = "/home/bzq999/data/complexclip/eval/coco/2014/coco_karpathy_test.json"
 
 
 def get_complexity_scores(sentence: str, nlp_pipeline):
@@ -83,18 +88,21 @@ def args_parser():
     )
     return parser.parse_args()
 
-def main(args):
-    dataset = load_from_disk(args.dataset_path)
+def main():
     nlp = stanza.Pipeline('en', processors='tokenize,pos,constituency', use_gpu=False)
+
+    annotation = json.load(open(COCO_DIR, "r"))
+    captions = []
+    for item in annotation:
+        captions.extend(item['caption'])
     y_score = []
     f_score = []
-    for item in tqdm(dataset):
-        scores = get_complexity_scores(item['caption'], nlp)
+    for caption in tqdm(captions):
+        scores = get_complexity_scores(caption, nlp)
         y_score.append(scores['yngve_score'])
         f_score.append(scores['frazier_score'])
 
 
-
 if __name__ == "__main__":
-    args = args_parser()
-    main(args)
+    #args = args_parser()
+    main()

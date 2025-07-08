@@ -129,21 +129,6 @@ def main(args):
     nlp = stanza.Pipeline('en', processors='tokenize,pos,constituency', use_gpu=True)
 
     captions = load_captions(args.dataset)
-    # if args.dataset == "sdci_retrieval":
-    #     dataset = load_from_disk(SDCI_ROOT)
-    #     captions = []
-    #     for _, ann in dataset:
-    #         captions.extend(ann)
-    # if args.dataset == "docci_retrieval":
-    #     dataset = load_from_disk(DOCCI_ROOT)
-    #     captions = []
-    #     for _, ann in dataset:
-    #         captions.extend(ann)
-    # if args.dataset == "iiw":
-    #     dataset = load_from_disk(IIW_ROOT)
-    #     captions = []
-    #     for _, ann in dataset:
-    #         captions.extend(ann)
 
     y_score = []
     f_score = []

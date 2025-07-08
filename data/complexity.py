@@ -1,5 +1,6 @@
 import argparse
 from datasets import load_from_disk
+from evaluation.scripts.evaluate_retrieval import FLICKR_DIR
 import stanza
 from tqdm import tqdm
 stanza.download('en')
@@ -8,7 +9,8 @@ import os
 
 
 COCO_DIR = "/home/bzq999/data/complexclip/eval/coco/2014/coco_karpathy_test.json"
-
+FLICKR_DIR = "/home/bzq999/data/complexclip/eval/flickr30k/flickr30k_test.json"
+URBAN1K_DIR = "/home/bzq999/data/complexclip/eval/Urban1k/caption/"
 
 def get_complexity_scores(sentence: str, nlp_pipeline):
     """
@@ -81,20 +83,35 @@ def get_complexity_scores(sentence: str, nlp_pipeline):
 def args_parser():
     parser = argparse.ArgumentParser(description="Compute complexity scores for a dataset.")
     parser.add_argument(
-        "--dataset_path",
+        "--dataset",
         type=str,
         required=True,
-        help="Path to the dataset file (e.g., CSV or text file)."
+        help="dataset to evalute."
     )
     return parser.parse_args()
 
-def main():
+def main(args):
     nlp = stanza.Pipeline('en', processors='tokenize,pos,constituency', use_gpu=False)
 
-    annotation = json.load(open(COCO_DIR, "r"))
-    captions = []
-    for item in annotation:
-        captions.extend(item['caption'])
+    if args.dataset == "coco":
+        annotation = json.load(open(COCO_DIR, "r"))
+        captions = []
+        for item in annotation:
+            captions.extend(item['caption'])
+    if args.dataset == "flickr30k":
+        annotation = json.load(open(FLICKR_DIR, "r"))
+        captions = []
+        for item in annotation:
+            captions.extend(item['caption'])
+    if args.dataset == "urban1k":
+        annotation = json.load(open(URBAN1K_DIR, "r"))
+        captions = []
+        for f in os.listdir(URBAN1K_DIR):
+            filename = os.path.join(URBAN1K_DIR, f)
+            with open(filename, 'r', encoding='utf-8') as file:
+                caption = file.read().strip()
+                captions.append(caption)
+
     y_score = []
     f_score = []
     for caption in tqdm(captions):
@@ -104,5 +121,5 @@ def main():
 
 
 if __name__ == "__main__":
-    #args = args_parser()
-    main()
+    args = args_parser()
+    main(args)

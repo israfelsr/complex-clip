@@ -12,7 +12,28 @@ To evaluate general alignment, we utilize the following datasets:
 Download Instructions:
 Please follow the instructions below to download and prepare these datasets.
 
+```
+# For COCO:
+# Download the Karpathy test split annotations:
+wget https://storage.googleapis.com/sfr-vision-language-research/datasets/coco_karpathy_test.json
 
+# Download the COCO test images (test2014):
+# Ensure you are in the correct directory (e.g., your data root directory) before running this.
+wget http://images.cocodataset.org/zips/test2014.zip
+unzip test2014.zip
+
+# For Flickr30k:
+# Download the Karpathy test split annotations:
+wget https://storage.googleapis.com/sfr-vision-language-research/datasets/flickr30k_test.json
+
+# For Flickr30k Images:
+# The Flickr30k images require manual download due to licensing.
+# You need to manually sign up and download the dataset from the following URL:
+# https://forms.illinois.edu/sec/229675
+# After downloading, place the image files in your designated data root directory.
+# Example directory structure after manual download:
+# your_data_root_dir/flickr30k/flickr30k_images/... (actual image files)
+```
 
 
 

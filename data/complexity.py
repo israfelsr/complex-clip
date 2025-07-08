@@ -117,6 +117,11 @@ def load_captions(dataset):
     elif dataset == "sdci_retrieval":
         dataset = load_from_disk(SDCI_ROOT)
         captions = [caption for item in dataset for caption in item['caption']]
+        return captions
+    elif dataset == "docci_retrieval":
+        dataset = load_from_disk(DOCCI_ROOT)
+        captions = [caption for item in dataset for caption in item['caption']]
+        return captions
     else:
         raise ValueError("Unknown dataset: {}".format(dataset))
 

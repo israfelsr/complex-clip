@@ -4,10 +4,14 @@ import json
 import os
 from collections import Counter
 from tqdm import tqdm
+from datasets import load_from_disk
 
 COCO_DIR = "/home/bzq999/data/complexclip/eval/coco/2014/coco_karpathy_test.json"
 FLICKR_DIR = "/home/bzq999/data/complexclip/eval/flickr30k/flickr30k_test.json"
 URBAN1K_DIR = "/home/bzq999/data/complexclip/eval/Urban1k/caption/"
+SDCI_ROOT = "/home/bzq999/data/complexclip/eval/sdci_retrieval.hf"
+DOCCI_ROOT = "/home/bzq999/data/complexclip/eval/docci_retrieval.hf"
+IIW_ROOT = "/home/bzq999/data/complexclip/eval/iiw_retrieval.hf"
 
 def args_parser():
     parser = argparse.ArgumentParser(description="Analyze token distribution in a dataset using CLIP tokenizer.")
@@ -39,6 +43,14 @@ def load_captions(dataset):
             with open(filename, 'r', encoding='utf-8') as file:
                 caption = file.read().strip()
                 captions.append(caption)
+        return captions
+    elif dataset == "sdci_retrieval":
+        dataset = load_from_disk(SDCI_ROOT)
+        captions = [caption for item in dataset for caption in item['caption']]
+        return captions
+    elif dataset == "docci_retrieval":
+        dataset = load_from_disk(DOCCI_ROOT)
+        captions = [caption for item in dataset for caption in item['caption']]
         return captions
     else:
         raise ValueError("Unknown dataset: {}".format(dataset))

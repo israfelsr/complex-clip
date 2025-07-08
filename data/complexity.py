@@ -1,6 +1,5 @@
 import argparse
 from datasets import load_from_disk
-from evaluation.scripts.evaluate_retrieval import FLICKR_DIR
 import stanza
 from tqdm import tqdm
 stanza.download('en')
@@ -91,7 +90,7 @@ def args_parser():
     return parser.parse_args()
 
 def main(args):
-    nlp = stanza.Pipeline('en', processors='tokenize,pos,constituency', use_gpu=False)
+    nlp = stanza.Pipeline('en', processors='tokenize,pos,constituency', use_gpu=True)
 
     if args.dataset == "coco":
         annotation = json.load(open(COCO_DIR, "r"))
@@ -119,6 +118,10 @@ def main(args):
         y_score.append(scores['yngve_score'])
         f_score.append(scores['frazier_score'])
 
+    avg_yngve = sum(y_score) / len(y_score) if y_score else 0
+    avg_frazier = sum(f_score) / len(f_score) if f_score else 0
+    print(f"Average Yngve score: {avg_yngve:.4f}")
+    print(f"Average Frazier score: {avg_frazier:.4f}")
 
 if __name__ == "__main__":
     args = args_parser()

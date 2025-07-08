@@ -68,7 +68,7 @@ def main(args):
         print(f"{token_id}: {count}")
 
     # Save the full token distribution to a file for later analysis/plotting
-    with open("token_distribution.json", "w") as f:
+    with open(f"{args.dataset}token_distribution.json", "w") as f:
         # Save as a list of [token_id, count] pairs, sorted by count descending
         json.dump(token_counter.most_common(), f, indent=2)
 

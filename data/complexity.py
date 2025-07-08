@@ -92,41 +92,53 @@ def args_parser():
     )
     return parser.parse_args()
 
-def main(args):
-    nlp = stanza.Pipeline('en', processors='tokenize,pos,constituency', use_gpu=True)
 
-    if args.dataset == "coco":
+def load_captions(dataset):
+    if dataset == "coco":
         annotation = json.load(open(COCO_DIR, "r"))
         captions = []
         for item in annotation:
             captions.extend(item['caption'])
-    if args.dataset == "flickr30k":
+        return captions
+    elif dataset == "flickr30k":
         annotation = json.load(open(FLICKR_DIR, "r"))
         captions = []
         for item in annotation:
             captions.extend(item['caption'])
-    if args.dataset == "urban1k":
+        return captions
+    elif dataset == "urban1k":
         captions = []
         for f in os.listdir(URBAN1K_DIR):
             filename = os.path.join(URBAN1K_DIR, f)
             with open(filename, 'r', encoding='utf-8') as file:
                 caption = file.read().strip()
                 captions.append(caption)
-    if args.dataset == "sdci_retrieval":
+        return captions
+    elif dataset == "sdci_retrieval":
         dataset = load_from_disk(SDCI_ROOT)
-        captions = []
-        for _, ann in dataset:
-            captions.extend(ann)
-    if args.dataset == "docci_retrieval":
-        dataset = load_from_disk(DOCCI_ROOT)
-        captions = []
-        for _, ann in dataset:
-            captions.extend(ann)
-    if args.dataset == "iiw":
-        dataset = load_from_disk(IIW_ROOT)
-        captions = []
-        for _, ann in dataset:
-            captions.extend(ann)
+        captions = [caption for item in dataset for caption in item['caption']]
+    else:
+        raise ValueError("Unknown dataset: {}".format(dataset))
+
+def main(args):
+    nlp = stanza.Pipeline('en', processors='tokenize,pos,constituency', use_gpu=True)
+
+    captions = load_captions(args.dataset)
+    # if args.dataset == "sdci_retrieval":
+    #     dataset = load_from_disk(SDCI_ROOT)
+    #     captions = []
+    #     for _, ann in dataset:
+    #         captions.extend(ann)
+    # if args.dataset == "docci_retrieval":
+    #     dataset = load_from_disk(DOCCI_ROOT)
+    #     captions = []
+    #     for _, ann in dataset:
+    #         captions.extend(ann)
+    # if args.dataset == "iiw":
+    #     dataset = load_from_disk(IIW_ROOT)
+    #     captions = []
+    #     for _, ann in dataset:
+    #         captions.extend(ann)
 
     y_score = []
     f_score = []

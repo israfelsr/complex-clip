@@ -6,7 +6,9 @@ stanza.download('en')
 import json
 import os
 from nltk.tree import Tree
+from stanza.models.common.doc import Document
 
+BATCH_SIZE = 512
 
 COCO_DIR = "/home/bzq999/data/complexclip/eval/coco/2014/coco_karpathy_test.json"
 FLICKR_DIR = "/home/bzq999/data/complexclip/eval/flickr30k/flickr30k_test.json"
@@ -127,6 +129,23 @@ def get_scores(sentence: str, nlp_pipeline):
     frazier = calc_frazier(t, 0, "")
     return {'yngve_score': yngve, 'frazier_score': frazier}
 
+def get_dataset_scores(sentences: list, nlp_pipeline, batch_size:int=32):
+    yngve = []
+    frazier = []
+    
+    processed_docs = []
+    for i in tqdm(range(0,len(sentences), batch_size)):
+        batch = sentences[i:i+batch_size]
+        docs = [Document([], text=sent) for sent in batch]
+        processed_docs.append(nlp_pipeline.bulk_process(docs))
+    
+    for doc in processed_docs:
+        tree = doc.sentences[0].constituency
+        t = Tree.fromstring(str(tree))
+        yngve.append(calc_yngve(t, 0))
+        frazier.append(calc_frazier(t, 0, ""))
+    return {'yngve_score': yngve, 'frazier_score': frazier}
+
 
 def args_parser():
     parser = argparse.ArgumentParser(description="Compute complexity scores for a dataset.")
@@ -175,19 +194,24 @@ def load_captions(dataset):
         raise ValueError("Unknown dataset: {}".format(dataset))
 
 def main(args):
-    nlp = stanza.Pipeline('en', processors='tokenize,pos,constituency', use_gpu=True)
-
+    nlp = stanza.Pipeline('en', processors='tokenize,pos,constituency', use_gpu=True, tokenize_batch_size=512)
     captions = load_captions(args.dataset)
 
-    y_score = []
-    f_score = []
-    for caption in tqdm(captions):
-        scores = get_complexity_scores(caption, nlp)
-        y_score.append(scores['yngve_score'])
-        f_score.append(scores['frazier_score'])
+    # y_score = []
+    # f_score = []
 
-    avg_yngve = sum(y_score) / len(y_score) if y_score else 0
-    avg_frazier = sum(f_score) / len(f_score) if f_score else 0
+    # for caption in tqdm(captions):
+    #     scores = get_complexity_scores(caption, nlp)
+    #     y_score.append(scores['yngve_score'])
+    #     f_score.append(scores['frazier_score'])
+
+    scores = get_dataset_scores(captions, nlp, batch_size=BATCH_SIZE)
+
+    # avg_yngve = sum(y_score) / len(y_score) if y_score else 0
+    # avg_frazier = sum(f_score) / len(f_score) if f_score else 0
+
+    avg_yngve = sum(scores['yngve_score']) / len(scores['yngve_score']) if scores['yngve_score'] else 0
+    avg_frazier = sum(scores['frazier_score']) / len(scores['frazier_score']) if scores['frazier_score'] else 0
     print(f"Average Yngve score: {avg_yngve:.4f}")
     print(f"Average Frazier score: {avg_frazier:.4f}")
 

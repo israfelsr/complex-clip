@@ -5,6 +5,7 @@ from tqdm import tqdm
 stanza.download('en')
 import json
 import os
+from nltk.tree import Tree
 
 
 COCO_DIR = "/home/bzq999/data/complexclip/eval/coco/2014/coco_karpathy_test.json"
@@ -82,6 +83,50 @@ def get_complexity_scores(sentence: str, nlp_pipeline):
         'yngve_score': round(avg_yngve, 4),
         'frazier_score': round(total_frazier, 4)
     }
+
+
+def calc_yngve(t, par):
+    if type(t) == str:
+        return par
+    else:
+        val = 0
+        for i, child in enumerate(reversed(t)):
+            val += calc_yngve(child, par+i)
+        return val
+
+def is_sent(val):
+    return len(val) > 0 and val[0] == "S"
+
+def calc_frazier(t, par, par_lab):
+    # print t
+    # print par
+    if type(t) == str:
+        # print par-1
+        return par-1
+    else:
+        val = 0
+        for i, child in enumerate(t):
+            # For all but the leftmost child, zero
+            score = 0
+            if i == 0:
+                my_lab = t.label()
+                # If it's a sentence, and not duplicated, add 1.5
+                if is_sent(my_lab):
+                    score = (0 if is_sent(par_lab) else par+1.5)
+                # Otherwise, unless it's a root node, add one
+                elif my_lab != "" and my_lab != "ROOT" and my_lab != "TOP":
+                    score = par + 1
+            val += calc_frazier(child, score, my_lab)
+        return val
+
+def get_scores(sentence: str, nlp_pipeline):
+    doc = nlp_pipeline(sentence)
+    tree = doc.sentences[0].constituency
+    t = Tree.fromstring(str(tree))
+    yngve = calc_yngve(t, 0)
+    frazier = calc_frazier(t, 0, "")
+    return {'yngve_score': yngve, 'frazier_score': frazier}
+
 
 def args_parser():
     parser = argparse.ArgumentParser(description="Compute complexity scores for a dataset.")

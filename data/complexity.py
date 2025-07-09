@@ -137,7 +137,7 @@ def get_dataset_scores(sentences: list, nlp_pipeline, batch_size:int=32):
     for i in tqdm(range(0,len(sentences), batch_size)):
         batch = sentences[i:i+batch_size]
         docs = [Document([], text=sent) for sent in batch]
-        processed_docs.append(nlp_pipeline.bulk_process(docs))
+        processed_docs.extend(nlp_pipeline.bulk_process(docs))
     
     for doc in processed_docs:
         tree = doc.sentences[0].constituency
@@ -185,6 +185,10 @@ def load_captions(dataset):
         return captions
     elif dataset == "docci_retrieval":
         dataset = load_from_disk(DOCCI_ROOT)
+        captions = [caption for item in dataset for caption in item['caption']]
+        return captions
+    elif dataset == "iiw":
+        dataset = load_from_disk(IIW_ROOT)
         captions = [caption for item in dataset for caption in item['caption']]
         return captions
     elif dataset == "ln":

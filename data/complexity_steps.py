@@ -2,11 +2,11 @@ import argparse
 from datasets import load_from_disk
 import stanza
 from tqdm import tqdm
+stanza.download('en')
 import json
 import os
 from nltk.tree import Tree
-import pickle
-import glob
+from stanza.models.common.doc import Document
 
 # Download model once if not present
 # stanza.download('en')
@@ -94,7 +94,7 @@ def load_captions(dataset):
 def run_parse_stage(args):
     """Loads captions, processes them in chunks, and saves processed docs."""
     print(f"--- Running Stage 1: Parsing dataset '{args.dataset}' ---")
-    nlp = stanza.Pipeline('en', processors='tokenize,pos,constituency', use_gpu=True, logging_level='WARN')
+    nlp = stanza.Pipeline('en', processors='tokenize,pos,constituency', use_gpu=True, tokenize_batch_size=512)
     captions = load_captions(args.dataset)
     
     output_dir = args.output_dir
@@ -103,11 +103,13 @@ def run_parse_stage(args):
     print(f"Total captions to process: {len(captions)}")
     print(f"Processing in chunks of {args.chunk_size}. Batches will be saved to '{output_dir}'")
     
+    processed_docs = []
     for i in tqdm(range(0, len(captions), args.chunk_size), desc="Processing Chunks"):
         chunk_captions = captions[i:i+args.chunk_size]
         
         # Use nlp(list_of_strings) for efficient batch processing
-        processed_docs = nlp(chunk_captions)
+        docs = [Document([], text=sent) for sent in chunk_captions]
+        processed_docs.extend(nlp.bulk_process(docs))
         
         # Save the processed chunk to a file
         chunk_filename = os.path.join(output_dir, f"processed_chunk_{i//args.chunk_size}.pkl")

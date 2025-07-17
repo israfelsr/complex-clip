@@ -13,6 +13,9 @@ SDCI_ROOT = "/home/bzq999/data/complexclip/eval/sdci_retrieval.hf"
 DOCCI_ROOT = "/home/bzq999/data/complexclip/eval/docci_retrieval.hf"
 IIW_ROOT = "/home/bzq999/data/complexclip/eval/iiw_retrieval.hf"
 LN_ROOT = "/home/bzq999/data/complexclip/eval/localized_narratives.hf"
+SHAREGPT4V_ROOT = "/home/bzq999/data/complexclip/eval/sharegpt4v.hf"
+SDCI_TRAIN_ROOT = "/home/bzq999/data/complexclip/eval/sdci_train.hf"
+DOCCI_TRAIN_ROOT = "/home/bzq999/data/complexclip/eval/docci.hf"
 
 def args_parser():
     parser = argparse.ArgumentParser(description="Analyze token distribution in a dataset using CLIP tokenizer.")
@@ -56,6 +59,20 @@ def load_captions(dataset):
     elif dataset == "ln":
         dataset = load_from_disk(LN_ROOT)
         return dataset['caption']
+    elif dataset == "sharegpt4v":
+        dataset = load_from_disk(SHAREGPT4V_ROOT)
+        return dataset['caption']
+    elif dataset == "sdci":
+        dataset = load_from_disk(SDCI_TRAIN_ROOT)
+        captions = [cap for sample in dataset for cap in sample['caption']]
+        return captions
+    elif dataset == "docci":
+        dataset = load_from_disk(DOCCI_TRAIN_ROOT)
+        return dataset['caption']
+    elif dataset == "iiw":
+        dataset = load_from_disk(IIW_ROOT)
+        captions = [caption for item in dataset for caption in item['caption']]
+        return captions
     else:
         raise ValueError("Unknown dataset: {}".format(dataset))
 

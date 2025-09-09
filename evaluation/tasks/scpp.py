@@ -5,7 +5,7 @@ import torch.nn.functional as F
 import numpy as np
 
 img_path = "/leonardo_work/EUHPC_D12_071/coco/2014/val2014/COCO_val2014_"  #'path to the images folder'
-data_path = "../../data/complexclip/eval/scpp/data/"  #'path to folder with caption files'
+data_path = "../data/clip-fine-cap/eval/scpp/data/"  # path to folder with caption files
 fnames = os.listdir(data_path)
 image_size = 224
 

@@ -17,6 +17,7 @@ SDCI_ROOT = "/home/bzq999/data/complexclip/eval/sdci_retrieval.hf"
 DOCCI_ROOT = "/home/bzq999/data/complexclip/eval/docci_retrieval.hf"
 IIW_ROOT = "/home/bzq999/data/complexclip/eval/iiw_retrieval.hf"
 LN_ROOT = "/home/bzq999/data/complexclip/eval/localized_narratives.hf"
+SHAREGPT4V_ROOT = "/home/bzq999/data/complexclip/eval/sharegpt4v.hf"
 
 def get_complexity_scores(sentence: str, nlp_pipeline):
     """
@@ -193,6 +194,7 @@ def load_captions(dataset):
         return captions
     elif dataset == "ln":
         dataset = load_from_disk(LN_ROOT)
+        dataset = dataset.select(range(0,1000))
         return dataset['caption']
     else:
         raise ValueError("Unknown dataset: {}".format(dataset))

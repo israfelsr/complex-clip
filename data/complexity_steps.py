@@ -7,6 +7,8 @@ import json
 import os
 from nltk.tree import Tree
 from stanza.models.common.doc import Document
+import pickle
+import glob
 
 # Download model once if not present
 # stanza.download('en')
@@ -50,6 +52,7 @@ SDCI_ROOT = "/home/bzq999/data/complexclip/eval/sdci_retrieval.hf"
 DOCCI_ROOT = "/home/bzq999/data/complexclip/eval/docci_retrieval.hf"
 IIW_ROOT = "/home/bzq999/data/complexclip/eval/iiw_retrieval.hf"
 LN_ROOT = "/home/bzq999/data/complexclip/eval/localized_narratives.hf"
+SHAREGPT4V_ROOT = "/home/bzq999/data/complexclip/eval/sharegpt4v.hf"
 
 def load_captions(dataset):
     if dataset == "coco":
@@ -86,6 +89,9 @@ def load_captions(dataset):
         return captions
     elif dataset == "ln":
         dataset = load_from_disk(LN_ROOT)
+        return dataset['caption']
+    elif dataset == "sharegpt4v":
+        dataset = load_from_disk(SHAREGPT4V_ROOT)
         return dataset['caption']
     else:
         raise ValueError("Unknown dataset: {}".format(dataset))

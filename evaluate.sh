@@ -32,17 +32,17 @@ python evaluation/evaluate.py \
 python evaluation/evaluate.py \
 --model_variant LongCLIP \
 --winoground \
---lora \
 --output_dir results/winoground/longclip.json \
 --model_path /leonardo_work/EUHPC_D12_071/longclip/checkpoints/longclip-B.pt #LongCLIP
 
 # DCI
 python evaluation/evaluate.py \
---model_variant OpenCLIP \
+--model_variant HuggingFace \
 --winoground \
 --lora \
 --output_dir results/winoground/dci.json \
---model_path /leonardo_work/EUHPC_D12_071/dci_pick1/ #HuggingFace lora
+--processor_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/clip-vit-base-patch32/ \
+--model_path /leonardo_work/EUHPC_D12_071/dci_pick1/
 
 # DAC
 python evaluation/evaluate.py \
@@ -63,6 +63,6 @@ python evaluation/evaluate.py \
 python evaluation/evaluate.py \
 --model_variant HuggingFace \
 --winoground \
---output_dir results/winoground/negclip.json \
+--output_dir results/winoground/lss.json \
 --processor_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/clip-vit-base-patch32/ \
 --model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/logs/15340816/checkpoint-3000

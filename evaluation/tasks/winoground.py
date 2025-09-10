@@ -47,9 +47,11 @@ def evaluate_winoground(model, device):
                     "c0_i1": cos_c0_i1,
                     "c1_i0": cos_c1_i0,
                     "c1_i1": cos_c1_i1,
+                    "tag_hard": item.get("tag_hard", [])  # Get tags for this example
                 }
             )
 
+    # Overall results
     text_correct_count = 0
     image_correct_count = 0
     group_correct_count = 0
@@ -59,8 +61,54 @@ def evaluate_winoground(model, device):
         group_correct_count += 1 if group_correct(result) else 0
 
     denominator = len(scores)
-    return {
+    overall_results = {
         "text": text_correct_count / denominator,
         "image": image_correct_count / denominator,
         "group": group_correct_count / denominator,
+    }
+    
+    # Group by tags
+    tag_results = {}
+    tag_counts = {}
+    
+    # Collect all unique tags
+    all_tags = set()
+    for result in scores:
+        all_tags.update(result["tag_hard"])
+    
+    # Initialize counters for each tag
+    for tag in all_tags:
+        tag_results[tag] = {"text": 0, "image": 0, "group": 0}
+        tag_counts[tag] = 0
+    
+    # Count correct examples for each tag
+    for result in scores:
+        for tag in result["tag_hard"]:
+            tag_counts[tag] += 1
+            if text_correct(result):
+                tag_results[tag]["text"] += 1
+            if image_correct(result):
+                tag_results[tag]["image"] += 1
+            if group_correct(result):
+                tag_results[tag]["group"] += 1
+    
+    # Calculate percentages for each tag
+    for tag in tag_results:
+        if tag_counts[tag] > 0:
+            tag_results[tag]["text"] /= tag_counts[tag]
+            tag_results[tag]["image"] /= tag_counts[tag]
+            tag_results[tag]["group"] /= tag_counts[tag]
+    
+    # Add counts to results for reference
+    tag_results_with_counts = {}
+    for tag in tag_results:
+        tag_results_with_counts[tag] = {
+            **tag_results[tag],
+            "count": tag_counts[tag]
+        }
+    
+    return {
+        "overall": overall_results,
+        "by_tag": tag_results_with_counts,
+        "total_examples": denominator
     }

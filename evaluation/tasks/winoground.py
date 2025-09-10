@@ -71,10 +71,13 @@ def evaluate_winoground(model, device):
     tag_results = {}
     tag_counts = {}
     
-    # Collect all unique tags
+    # Collect all unique tags, including empty ones as "NoTag"
     all_tags = set()
     for result in scores:
-        all_tags.update(result["tag_hard"])
+        if len(result["tag_hard"]) == 0:
+            all_tags.add("NoTag")
+        else:
+            all_tags.update(result["tag_hard"])
     
     # Initialize counters for each tag
     for tag in all_tags:
@@ -83,14 +86,25 @@ def evaluate_winoground(model, device):
     
     # Count correct examples for each tag
     for result in scores:
-        for tag in result["tag_hard"]:
-            tag_counts[tag] += 1
+        if len(result["tag_hard"]) == 0:
+            # Handle examples with no tags
+            tag_counts["NoTag"] += 1
             if text_correct(result):
-                tag_results[tag]["text"] += 1
+                tag_results["NoTag"]["text"] += 1
             if image_correct(result):
-                tag_results[tag]["image"] += 1
+                tag_results["NoTag"]["image"] += 1
             if group_correct(result):
-                tag_results[tag]["group"] += 1
+                tag_results["NoTag"]["group"] += 1
+        else:
+            # Handle examples with tags
+            for tag in result["tag_hard"]:
+                tag_counts[tag] += 1
+                if text_correct(result):
+                    tag_results[tag]["text"] += 1
+                if image_correct(result):
+                    tag_results[tag]["image"] += 1
+                if group_correct(result):
+                    tag_results[tag]["group"] += 1
     
     # Calculate percentages for each tag
     for tag in tag_results:

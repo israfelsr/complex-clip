@@ -94,6 +94,8 @@ def main():
         scores["experiments"]["winoground"] = evaluate_winoground(model, device)
     # save results
     if not model_args.output_dir:
+        print(json.dumps(scores, indent=2))
+    else:
         model_name = Path(model_args.model_path).stem
         model_name.mkdir(parents=True, exist_ok=True)
         model_args.output_dir = f".results/{model_name}/results.json"

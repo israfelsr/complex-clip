@@ -11,14 +11,16 @@
 #SBATCH --output=./slurm/%j.log
 export PYTHONPATH=$(pwd)
 python evaluation/evaluate.py \
-    --model_variant OpenCLIP \
-    --winoground \
-    --model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/Clip_all.pt # OpenCLIP
-#--processor_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/clip-vit-base-patch32/ \
-#--model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/clip-vit-base-patch32/
+--model_variant OpenCLIP \
+--winoground \
+--lora \
+--output_dir results/winoground/CE-clip.json \
+--model_path /leonardo_work/EUHPC_D12_071/LLM_cp.pt #OpenClip lora
+#--model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/Clip_all.pt # OpenCLIP
 #--model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/logs/15198382/checkpoint-2000/ \
+#--processor_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/clip-vit-base-patch32/ \
+#--model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/clip-vit-base-patch32/ \
 #--retrieval coco flickr urban sdci docci iiw \
-#--model_path /leonardo_work/EUHPC_D12_071/LLM_cp.pt #OpenClip lora
 #--model_path $WORK/dci_pick1/ #HuggingFace lora
 #--model_path $WORK/projects/complex-clip/models/negclip/negclip.pth
 #--model_path /leonardo_work/EUHPC_D12_071/longclip/checkpoints/longclip-B.pt #LongCLIP

@@ -96,12 +96,8 @@ def main():
     if not model_args.output_dir:
         print(json.dumps(scores, indent=2))
     else:
-        model_name = Path(model_args.model_path).stem
-        model_name.mkdir(parents=True, exist_ok=True)
-        model_args.output_dir = f".results/{model_name}/results.json"
-    Path(model_args.output_dir).parent.mkdir(parents=True, exist_ok=True)
-    with open(model_args.output_dir, "w") as f:
-        json.dump(scores, f, indent=4)
+        with open(model_args.output_dir, "w") as f:
+            json.dump(scores, f, indent=4)
 
 
 if __name__ == "__main__":

@@ -10,17 +10,59 @@
 #SBATCH --gres=gpu:1
 #SBATCH --output=./slurm/%j.log
 export PYTHONPATH=$(pwd)
+
+# Base CLIP
+python evaluation/evaluate.py \
+--model_variant HuggingFace \
+--winoground \
+--output_dir results/winoground/base.json \
+--processor_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/clip-vit-base-patch32/ \
+--model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/clip-vit-base-patch32/
+#--retrieval coco flickr urban sdci docci iiw \
+
+# CE-CLIP
+python evaluation/evaluate.py \
+--model_variant OpenCLIP \
+--winoground \
+--output_dir results/winoground/CE-CLIP.json \
+--model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/Clip_all.pt # OpenCLIP
+#--retrieval coco flickr urban sdci docci iiw \
+
+# LongCLIP
+python evaluation/evaluate.py \
+--model_variant LongCLIP \
+--winoground \
+--lora \
+--output_dir results/winoground/longclip.json \
+--model_path /leonardo_work/EUHPC_D12_071/longclip/checkpoints/longclip-B.pt #LongCLIP
+
+# DCI
 python evaluation/evaluate.py \
 --model_variant OpenCLIP \
 --winoground \
 --lora \
---output_dir results/winoground/CE-clip.json \
+--output_dir results/winoground/dci.json \
+--model_path /leonardo_work/EUHPC_D12_071/dci_pick1/ #HuggingFace lora
+
+# DAC
+python evaluation/evaluate.py \
+--model_variant OpenCLIP \
+--winoground \
+--lora \
+--output_dir results/winoground/dac_llm.json \
 --model_path /leonardo_work/EUHPC_D12_071/LLM_cp.pt #OpenClip lora
-#--model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/Clip_all.pt # OpenCLIP
-#--model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/logs/15198382/checkpoint-2000/ \
-#--processor_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/clip-vit-base-patch32/ \
-#--model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/clip-vit-base-patch32/ \
-#--retrieval coco flickr urban sdci docci iiw \
-#--model_path $WORK/dci_pick1/ #HuggingFace lora
-#--model_path $WORK/projects/complex-clip/models/negclip/negclip.pth
-#--model_path /leonardo_work/EUHPC_D12_071/longclip/checkpoints/longclip-B.pt #LongCLIP
+
+# NegCLIP
+python evaluation/evaluate.py \
+--model_variant OpenCLIP \
+--winoground \
+--output_dir results/winoground/negclip.json \
+--model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/negclip/negclip.pth
+
+# LSS_sharegpt
+python evaluation/evaluate.py \
+--model_variant HuggingFace \
+--winoground \
+--output_dir results/winoground/negclip.json \
+--processor_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/clip-vit-base-patch32/ \
+--model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/logs/15340816/checkpoint-3000

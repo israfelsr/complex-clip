@@ -66,3 +66,10 @@ python evaluation/evaluate.py \
 --output_dir results/winoground/lss.json \
 --processor_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/clip-vit-base-patch32/ \
 --model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/logs/15340816/checkpoint-3000
+
+# DreamLIP
+python evaluation/evaluate.py \
+--model_variant OpenCLIP \
+--winoground \
+--output_dir results/winoground/dreamlip.json \
+--model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/cc30m_dreamlip_vitb16.pt

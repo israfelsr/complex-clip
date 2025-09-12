@@ -1,14 +1,14 @@
 #!/bin/bash
 #SBATCH -N 1
-#SBATCH -A EUHPC_D12_071
+#SBATCH -A EUHPC_D27_102
 #SBATCH -p boost_usr_prod
 #SBATCH --job-name=cclip
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=8
-#SBATCH --mem=64G
+#SBATCH --cpus-per-task=32
+#SBATCH --mem=480G
 #SBATCH --time=10:00:00
 #SBATCH --gres=gpu:4
-#SBATCH --output=./slurm/docci_%j.log
+#SBATCH --output=./slurm/lss_16_%j.log
 #export CUDA_VISIBLE_DEVICES=0
 
 # Set environment variables
@@ -19,10 +19,11 @@ export HF_DATASETS_OFFLINE=1
 export PHF_HUB_OFFLINE=1
 
 export OUTPUT_DIR=${SLURM_JOB_ID}
+export OMP_NUM_THREADS=$((SLURM_CPUS_PER_TASK / SLURM_GPUS_PER_NODE))
 mkdir $WORK/projects/complex-clip/logs/$OUTPUT_DIR
 
 #python scripts/run_clip_offline.py \
-torchrun --nproc_per_node=4 scripts/run_clip_offline.py \
+torchrun --nproc_per_node=$SLURM_GPUS_PER_NODE --nnodes=$SLURM_NNODES scripts/run_clip_offline.py \
     --max_steps=500 \
     --gradient_accumulation_steps=1 \
     --per_device_train_batch_size=256 \

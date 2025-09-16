@@ -1,6 +1,13 @@
 from abc import ABC, abstractmethod
 import torch
-from transformers import CLIPModel, CLIPTokenizer, CLIPImageProcessor
+from transformers import (
+    CLIPModel,
+    CLIPTokenizer,
+    CLIPImageProcessor,
+    SiglipModel,
+    SiglipTokenizer,
+    SiglipImageProcessor,
+)
 from peft import PeftModel
 import open_clip
 from longclip.model import longclip
@@ -8,6 +15,9 @@ from DAC.src.open_clip import create_model_and_transforms
 
 
 BASE = "/leonardo_work/EUHPC_D12_071/projects/complex-clip/models/clip-vit-base-patch32"
+SIGLIP = (
+    "/leonardo_work/EUHPC_D12_071/projects/complex-clip/models/siglip-base-patch16-224/"
+)
 MODEL_ROOT = "/leonardo_work/EUHPC_D12_071/projects/complex-clip/"
 
 
@@ -56,6 +66,53 @@ class ContrastiveModel(ABC):
     @abstractmethod
     def _get_image_features(self, inputs):
         pass
+
+
+class SiglipHF(ContrastiveModel):
+    def __init__(self):
+        self.model = None
+        self.tokenizer = None
+        self.processor = None
+        self.tag = "siglip"
+
+    def load_model(self, model_path, device, processor_path=None, lora=None):
+        if lora:
+            base = SiglipModel.from_pretrained(
+                SIGLIP,
+                local_files_only=True,
+            )
+            self.model = PeftModel.from_pretrained(base, model_path)
+            self.model.merge_and_unload()
+        else:
+            self.model = SiglipModel.from_pretrained(
+                model_path,
+                local_files_only=True,
+            )
+        print(f"Model loaded from: {model_path}")
+        if processor_path is None:
+            processor_path = model_path
+
+        self.tokenizer = SiglipTokenizer.from_pretrained(
+            processor_path, local_files_only=True
+        )
+        self.processor = SiglipImageProcessor.from_pretrained(
+            processor_path, local_files_only=True
+        )
+        self.model.to(device)
+
+    def _prepare_text(self, texts):
+        return self.tokenizer(
+            texts, padding="max_length", return_tensors="pt", truncation=True
+        )
+
+    def _prepare_image(self, images):
+        return self.processor(images, return_tensors="pt")["pixel_values"]
+
+    def _get_text_features(self, inputs):
+        return self.model.get_text_features(**inputs)
+
+    def _get_image_features(self, inputs):
+        return self.model.get_image_features(pixel_values=inputs)
 
 
 class HuggingFaceCLIP(ContrastiveModel):

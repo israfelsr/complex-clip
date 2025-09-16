@@ -5,7 +5,7 @@ from typing import Optional, List
 from transformers import HfArgumentParser
 
 from evaluation.tasks.winoground import evaluate_winoground
-from models import HuggingFaceCLIP, OpenCLIP, LongCLIP
+from models import HuggingFaceCLIP, OpenCLIP, LongCLIP, SiglipHF
 from pathlib import Path
 from tasks import (
     evaluate_classification,
@@ -67,6 +67,8 @@ def main():
         model = OpenCLIP()
     elif model_args.model_variant == "LongCLIP":
         model = LongCLIP()
+    elif model_args.model_variant == "SiglipHF":
+        model = SiglipHF()
     else:
         raise ValueError(
             f"Invalid model_variant: {model_args.model_variant}. "

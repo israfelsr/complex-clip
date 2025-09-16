@@ -11,65 +11,77 @@
 #SBATCH --output=./slurm/%j.log
 export PYTHONPATH=$(pwd)
 
-# Base CLIP
-python evaluation/evaluate.py \
---model_variant HuggingFace \
---winoground \
---output_dir results/winoground/base.json \
---processor_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/clip-vit-base-patch32/ \
---model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/clip-vit-base-patch32/
-#--retrieval coco flickr urban sdci docci iiw \
+# # Base CLIP
+# python evaluation/evaluate.py \
+# --model_variant HuggingFace \
+# --winoground \
+# --output_dir results/winoground/base.json \
+# --processor_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/clip-vit-base-patch32/ \
+# --model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/clip-vit-base-patch32/
+# #--retrieval coco flickr urban sdci docci iiw \
 
-# CE-CLIP
-python evaluation/evaluate.py \
---model_variant OpenCLIP \
---winoground \
---output_dir results/winoground/CE-CLIP.json \
---model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/Clip_all.pt # OpenCLIP
-#--retrieval coco flickr urban sdci docci iiw \
+# # CE-CLIP
+# python evaluation/evaluate.py \
+# --model_variant OpenCLIP \
+# --winoground \
+# --output_dir results/winoground/CE-CLIP.json \
+# --model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/Clip_all.pt # OpenCLIP
+# #--retrieval coco flickr urban sdci docci iiw \
 
-# LongCLIP
-python evaluation/evaluate.py \
---model_variant LongCLIP \
---winoground \
---output_dir results/winoground/longclip.json \
---model_path /leonardo_work/EUHPC_D12_071/longclip/checkpoints/longclip-B.pt #LongCLIP
+# # LongCLIP
+# python evaluation/evaluate.py \
+# --model_variant LongCLIP \
+# --winoground \
+# --output_dir results/winoground/longclip.json \
+# --model_path /leonardo_work/EUHPC_D12_071/longclip/checkpoints/longclip-B.pt #LongCLIP
 
-# DCI
-python evaluation/evaluate.py \
---model_variant HuggingFace \
---winoground \
---lora \
---output_dir results/winoground/dci.json \
---processor_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/clip-vit-base-patch32/ \
---model_path /leonardo_work/EUHPC_D12_071/dci_pick1/
+# # DCI
+# python evaluation/evaluate.py \
+# --model_variant HuggingFace \
+# --winoground \
+# --lora \
+# --output_dir results/winoground/dci.json \
+# --processor_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/clip-vit-base-patch32/ \
+# --model_path /leonardo_work/EUHPC_D12_071/dci_pick1/
 
-# DAC
-python evaluation/evaluate.py \
---model_variant OpenCLIP \
---winoground \
---lora \
---output_dir results/winoground/dac_llm.json \
---model_path /leonardo_work/EUHPC_D12_071/LLM_cp.pt #OpenClip lora
+# # DAC
+# python evaluation/evaluate.py \
+# --model_variant OpenCLIP \
+# --winoground \
+# --lora \
+# --output_dir results/winoground/dac_llm.json \
+# --model_path /leonardo_work/EUHPC_D12_071/LLM_cp.pt #OpenClip lora
 
-# NegCLIP
-python evaluation/evaluate.py \
---model_variant OpenCLIP \
---winoground \
---output_dir results/winoground/negclip.json \
---model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/negclip/negclip.pth
+# # NegCLIP
+# python evaluation/evaluate.py \
+# --model_variant OpenCLIP \
+# --winoground \
+# --output_dir results/winoground/negclip.json \
+# --model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/negclip/negclip.pth
 
-# LSS_sharegpt
-python evaluation/evaluate.py \
---model_variant HuggingFace \
---winoground \
---output_dir results/winoground/lss.json \
---processor_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/clip-vit-base-patch32/ \
---model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/logs/15340816/checkpoint-3000
+# # LSS_sharegpt
+# python evaluation/evaluate.py \
+# --model_variant HuggingFace \
+# --winoground \
+# --output_dir results/winoground/lss.json \
+# --processor_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/clip-vit-base-patch32/ \
+# --model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/logs/15340816/checkpoint-3000
 
-# DreamLIP
+# # DreamLIP
+# python evaluation/evaluate.py \
+# --model_variant OpenCLIP \
+# --winoground \
+# --output_dir results/winoground/dreamlip.json \
+# --model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/cc30m_dreamlip_vitb16.pt
+
+# SiglipHF
 python evaluation/evaluate.py \
---model_variant OpenCLIP \
+--model_variant SiglipHF \
 --winoground \
---output_dir results/winoground/dreamlip.json \
---model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/cc30m_dreamlip_vitb16.pt
+--scpp \
+--aro \
+--classification \
+--retrieval coco flickr urban sdci docci iiw \
+--output_dir results/winoground/siglip.json \
+--processor_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/siglip-base-patch16-224/ \
+--model_path /leonardo_work/EUHPC_D12_071/projects/complex-clip/models/siglip-base-patch16-224/
